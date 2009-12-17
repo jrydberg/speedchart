@@ -1,22 +1,49 @@
 package org.gwt.speedchart.client;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.graphics.client.Color;
 import org.gwt.speedchart.client.graph.LineGraph;
 import org.gwt.speedchart.client.graph.TimelineModel;
+import org.gwt.speedchart.client.graph.axis.DomainAxis;
 import org.gwt.speedchart.client.graph.TimelineModel.WindowBoundsObserver;
 import org.gwt.speedchart.client.util.Interval;
 import org.gwt.speedchart.client.fx.Zoom;
+import org.gwt.speedchart.client.fx.Pan;
 
 import com.google.gwt.event.dom.client.MouseWheelEvent;
 import com.google.gwt.event.dom.client.MouseWheelHandler;
 
+import com.google.gwt.dom.client.StyleInjector;
+import com.google.gwt.resources.client.CssResource;
+import com.google.gwt.resources.client.CssResource.Strict;
 
 import com.allen_sauer.gwt.log.client.Log;
 
 
 public class SpeedChart extends VerticalPanel {
+
+  /**
+   * Css stylenames.
+   */
+  public interface Css extends CssResource {
+    String graphBase();
+
+    String mainGraph();
+    String overviewGraph();
+  }
+
+  /**
+   * Resources for {@link TimeLineGraph}.
+   */
+  public interface Resources extends DomainAxis.Resources {
+    @Source("resources/SpeedChart.css")
+    @Strict
+    Css speedGraphCss();
+  }
+
+  private static final Resources resources = GWT.create(Resources.class);
 
   private TimelineModel mainModel;
 
@@ -24,17 +51,28 @@ public class SpeedChart extends VerticalPanel {
 
   private final Zoom zoom;
 
+  private final Pan pan;
+
   private class OverviewTimelineModel extends TimelineModel {
     public OverviewTimelineModel() {
       super(false, false);
     }
   }
 
+  private DomainAxis domainAxis;
+
   private OverviewTimelineModel overviewModel;
 
   private LineGraph overviewGraph;
 
+  static {
+    StyleInjector.injectStylesheet(resources.domainAxisCss().getText()
+        + resources.speedGraphCss().getText());
+  }
+
   public SpeedChart() {
+    setStyleName(resources.speedGraphCss().graphBase());
+
     mainModel = new TimelineModel(false, false);
     mainModel.updateBounds(0, 5);
     this.zoom = new Zoom(mainModel);
@@ -43,9 +81,17 @@ public class SpeedChart extends VerticalPanel {
     overviewModel.updateBounds(0, 5);
 
     overviewGraph = new LineGraph(1000, 50);
+    overviewGraph.setStyleName(resources.speedGraphCss()
+        .overviewGraph());
 
     lineGraph = new LineGraph(1000, 400);
+    lineGraph.setStyleName(resources.speedGraphCss()
+        .mainGraph());
     zoom.addListener(lineGraph);
+
+    this.pan = new Pan(mainModel, lineGraph);
+
+    domainAxis = new DomainAxis(resources);
 
     lineGraph.addMouseWheelHandler(new MouseWheelHandler() {
       public void onMouseWheel(MouseWheelEvent event) {
@@ -93,6 +139,7 @@ public class SpeedChart extends VerticalPanel {
 	    double domainEnd) {
 	  //Log.info("redraw to: " + domainStart + ", " + domainEnd);
 	  lineGraph.draw(new Interval(domainStart, domainEnd));
+	  domainAxis.draw(new Interval(domainStart, domainEnd));
 	}
       });    
 
@@ -108,6 +155,7 @@ public class SpeedChart extends VerticalPanel {
       });    
 
     add(lineGraph);
+    add(domainAxis);
     add(overviewGraph);
   }
 
@@ -136,8 +184,10 @@ public class SpeedChart extends VerticalPanel {
   }
 
   public void redraw() {
-    lineGraph.draw(new Interval(mainModel.getLeftBound(),
-        mainModel.getRightBound()));
+    Interval mainDomain = new Interval(mainModel.getLeftBound(),
+         mainModel.getRightBound());
+    lineGraph.draw(mainDomain);
+    domainAxis.draw(mainDomain);
     overviewGraph.draw(new Interval(overviewModel.getLeftBound(),
         overviewModel.getRightBound()));
   }

@@ -78,7 +78,7 @@ public class SpeedChartSample implements EntryPoint {
         Color.BLACK, 0);
 
     final int n = 1300;
-    int d = 0;
+    int d = 60*60*24*300;
     double[] domainData = new double[n];
     double[] rangeData = new double[n];
     for (int i = 0; i < n; i++) {

@@ -176,6 +176,11 @@ public abstract class AbstractGraph<T extends Tuple2D> extends FocusPanel
     return COORD_X_WIDTH * c;
   }
 
+  public double getDomainWidthByUserX(int userPx) {
+    double c = (userPx / (double) COORD_X_WIDTH);
+    return visDomain.length() * c;
+  }
+
   protected void beginDrawing() {
     canvas.clear();
   }

@@ -1,0 +1,10 @@
+.axis {
+  position: relative;
+  height: 30px;
+}
+
+.tickLabel {
+  position: absolute;
+  top: 7px;
+  font-size: 10px;
+}
