@@ -1,0 +1,13 @@
+<!DOCTYPE document SYSTEM
+    "http://google-web-toolkit.googlecode.com/svn/releases/1.5/distro-source/core/src/gwt-module.dtd">
+<module>
+    <inherits name='com.google.gwt.core.Core' />        
+    <inherits name='com.google.gwt.dom.DOM' />
+    <inherits name='com.google.gwt.resources.Resources' />
+    <inherits name='com.google.gwt.topspin.TopSpin' />
+    <!-- WE SHOULDN'T NEED TO DEPEND ON THE FOLLOWING!! but we do ;( -->
+    <inherits name='com.google.gwt.user.User'/>
+    <inherits name='com.google.gwt.i18n.I18N'/>
+    
+    <source path="client/"/>
+</module>

@@ -1,0 +1,53 @@
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/3/trunk/src/client/ui/src/com/google/gwt/graphics/client
+END
+ChartTest.java
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/!svn/ver/3/trunk/src/client/ui/src/com/google/gwt/graphics/client/ChartTest.java
+END
+LinearGradient.java
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/!svn/ver/3/trunk/src/client/ui/src/com/google/gwt/graphics/client/LinearGradient.java
+END
+CanvasGradient.java
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/!svn/ver/3/trunk/src/client/ui/src/com/google/gwt/graphics/client/CanvasGradient.java
+END
+ImageLoader.java
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/!svn/ver/3/trunk/src/client/ui/src/com/google/gwt/graphics/client/ImageLoader.java
+END
+RadialGradient.java
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/!svn/ver/3/trunk/src/client/ui/src/com/google/gwt/graphics/client/RadialGradient.java
+END
+Canvas.java
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/!svn/ver/3/trunk/src/client/ui/src/com/google/gwt/graphics/client/Canvas.java
+END
+Color.java
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/!svn/ver/3/trunk/src/client/ui/src/com/google/gwt/graphics/client/Color.java
+END
+ImageHandle.java
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/!svn/ver/3/trunk/src/client/ui/src/com/google/gwt/graphics/client/ImageHandle.java
+END

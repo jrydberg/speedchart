@@ -1,0 +1,5 @@
+<module>
+  <inherits name="com.google.gwt.graphics.Canvas" />
+
+  <entry-point class='com.google.gwt.graphics.client.ChartTest' />
+</module>
