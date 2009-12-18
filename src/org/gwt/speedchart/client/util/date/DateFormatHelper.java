@@ -28,7 +28,7 @@ import java.util.Date;
 
 
 /**
- * Utilities for formatting a {@Link ChronoDate} into different date
+ * Utilities for formatting a {@Link Date} into different date
  * representations.
  *
  * @author chad takahashi
@@ -56,7 +56,7 @@ public final class DateFormatHelper {
    * Uses GWT DateTimeFormat class to obtain hour-of-day labels (e.g. "9am").
    */
   private static String[] createHoursOfDayLabels() {
-    DateFormatter fmt = getDateFormatter("H"); // h=hour, a=AM/PM
+    DateFormatter fmt = getDateFormatter("HH:00"); // h=hour, a=AM/PM
     String[] hourLabels = new String[24];
     for (int h = 0; h < hourLabels.length; h++) {
       hourLabels[h] = fmt
@@ -81,7 +81,7 @@ public final class DateFormatHelper {
   /**
    * Returns an abbreviated month string for the specified date.
    */
-  private static String formatMonth(ChronoDate d) {
+  private static String formatMonth(Date d) {
     return MONTH_LABELS[d.getMonth()];
   }
 
@@ -90,7 +90,7 @@ public final class DateFormatHelper {
    *
    * @param d - The date to be formatted
    */
-  public String dayAndMonth(ChronoDate d) {
+  public String dayAndMonth(Date d) {
     return pad(d.getDay()) + "-" + formatMonth(d);
   }
 
@@ -109,8 +109,8 @@ public final class DateFormatHelper {
    *
    * @param d - The date to be formatted
    */
-  public String hourAndMinute(ChronoDate d) {
-    return pad(d.getHour()) + ":" + pad(d.getMinute());
+  public String hourAndMinute(Date d) {
+    return pad(d.getHours()) + ":" + pad(d.getMinutes());
   }
 
   /**
@@ -118,9 +118,9 @@ public final class DateFormatHelper {
    *
    * @param d - The date to be formatted
    */
-  public String hourMinuteSecond(ChronoDate d) {
-    return pad(d.getHour()) + ":" + pad(d.getMinute()) + ":" + pad(
-        d.getSecond());
+  public String hourMinuteSecond(Date d) {
+    return pad(d.getHours()) + ":" + pad(d.getMinutes()) + ":" + pad(
+        d.getSeconds());
   }
 
   /**
@@ -128,7 +128,7 @@ public final class DateFormatHelper {
    *
    * @param d - The date to be formatted
    */
-  public String monthAndYear(ChronoDate d) {
+  public String monthAndYear(Date d) {
     return formatMonth(d) + "'" + twoDigitYear(d);
   }
 
@@ -146,17 +146,17 @@ public final class DateFormatHelper {
    *
    * @param d - The date to be formatted
    */
-  public String tenthOfSecond(ChronoDate d) {
+  public String tenthOfSecond(Date d) {
     int tenthSecond = MathUtil.mod((int) d.getTime() / 100, 10);
-    return pad(d.getHour()) + ":" + pad(d.getMinute()) + ":"
-        + pad(d.getSecond()) + "." + pad(tenthSecond);
+    return pad(d.getHours()) + ":" + pad(d.getMinutes()) + ":"
+        + pad(d.getSeconds()) + "." + pad(tenthSecond);
   }
 
   /**
    * Formats a 2 digit year string from the specified date. For example, the
    * date '2006-05-25' returns the string "06".
    */
-  public String twoDigitYear(ChronoDate d) {
+  public String twoDigitYear(Date d) {
     String yr = String.valueOf(d.getYear());
     return yr.substring(yr.length() - 2);
   }

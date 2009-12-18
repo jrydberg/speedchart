@@ -37,7 +37,7 @@ public class HoursTickFormatter extends DateTickFormatter {
   }
 
   public String formatTick() {
-    int hourOfDay = currTick.getHour();
+    int hourOfDay = currTick.getHours();
     switch (hourOfDay) {
       case 0:
         return dateFormat.dayAndMonth(currTick);

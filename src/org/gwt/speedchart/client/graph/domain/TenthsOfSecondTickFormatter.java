@@ -37,10 +37,10 @@ public class TenthsOfSecondTickFormatter extends DateTickFormatter {
     return dateFormat.tenthOfSecond(currTick);
   }
 
-  @Override
-  public void resetToQuantizedTick(double dO, int idealTickStep) {
-    currTick.setTime(dO);
-    currTick.truncate(TimeUnit.SEC);
-  }
+//   @Override
+//   public void resetToQuantizedTick(double dO, int idealTickStep) {
+//     currTick.setTime(dO);
+//     currTick.truncate(TimeUnit.SEC);
+//   }
 
 }

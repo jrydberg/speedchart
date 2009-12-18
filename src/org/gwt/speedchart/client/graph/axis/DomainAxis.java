@@ -79,7 +79,7 @@ public class DomainAxis extends FlowPanel {
   private double minTickSize = -1;
 
   private TickFormatterFactory tickFormatterFactory
-      = new IntTickFormatterFactory();
+      = new DateTickFormatterFactory();
 
   public DomainAxis(Resources resources) {
     this.resources = resources;

@@ -22,7 +22,7 @@
 package org.gwt.speedchart.client.graph.domain;
 
 import org.gwt.speedchart.client.util.TimeUnit;
-import org.gwt.speedchart.client.util.date.ChronoDate;
+import java.util.Date;
 
 public class MinutesTickFormatter extends DateTickFormatter {
 
@@ -35,8 +35,8 @@ public class MinutesTickFormatter extends DateTickFormatter {
   }
 
   public String formatTick() {
-    ChronoDate d = currTick;
-    if (d.getHour() == 0 && d.getMinute() == 0) {
+    Date d = currTick;
+    if (d.getHours() == 0 && d.getMinutes() == 0) {
       return dateFormat.dayAndMonth(d);
     }
     else {

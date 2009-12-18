@@ -23,8 +23,9 @@ package org.gwt.speedchart.client.graph.domain;
 
 import org.gwt.speedchart.client.util.MathUtil;
 import org.gwt.speedchart.client.util.TimeUnit;
-import org.gwt.speedchart.client.util.date.ChronoDate;
 import org.gwt.speedchart.client.util.date.DateFormatHelper;
+
+import java.util.Date;
 
 /**
  * Provides functionality for rendering the date/time ticks in a context-sensitive
@@ -37,7 +38,7 @@ public abstract class DateTickFormatter extends TickFormatter {
   
   protected DateFormatHelper dateFormat = new DateFormatHelper();
   
-  protected ChronoDate currTick = ChronoDate.getSystemDate();
+  protected Date currTick = new Date();
   
   /**
    * Subclasses assign this field upon construction.
@@ -84,9 +85,56 @@ public abstract class DateTickFormatter extends TickFormatter {
    * get returned (the typical case for this is a date near the end of a month).
    */
   public int incrementTick(int numTimeUnits) {
-    ChronoDate date = currTick;
-    date.add(timeUnitTickInterval, numTimeUnits);
+    currTick.setTime(currTick.getTime()
+        + (long) (timeUnitTickInterval.ms() * numTimeUnits));
     return numTimeUnits;
+  }
+
+  protected int getTimeUnit(Date d, TimeUnit timeUnit) {
+    switch (timeUnit) {
+    case CENTURY:
+      return d.getYear() / 100;
+    case DECADE:
+      return d.getYear() / 10;
+    case YEAR:
+      return d.getYear();
+    case MONTH:
+      return d.getMonth();
+    case DAY:
+      return d.getDay();
+    case HOUR:
+      return d.getHours();
+    case MIN:
+      return d.getMinutes();
+    case SEC:
+      return d.getSeconds();
+    case MILLENIUM: // define this near/at the bottom, as it's used less frequently
+      return (d.getYear() / 1000);
+    default:
+      throw new UnsupportedOperationException(
+	"TimeUnit " + timeUnit + " not supported at this time");
+    }
+  }
+
+  protected void setTimeUnit(Date d, TimeUnit timeUnit, int value) {
+    switch (timeUnit) {
+    case MONTH:
+      d.setMonth(value);
+      break;
+    case HOUR:
+      d.setHours(value);
+      break;
+    case DAY:
+      //d.setDay(value);
+      break;
+    case MIN:
+      d.setMinutes(value);
+      break;
+    case SEC:
+      d.setSeconds(value);
+      break;
+    }
+
   }
 
   /**
@@ -101,15 +149,13 @@ public abstract class DateTickFormatter extends TickFormatter {
    * @return the quantized date
    */
   public void resetToQuantizedTick(double timeStamp, int tickStep) {
-    currTick.setTime(timeStamp);
-    currTick.truncate(this.timeUnitTickInterval);
-    int normalizedValue = 
-        MathUtil.quantize(currTick.get(this.timeUnitTickInterval), tickStep);
-    currTick.set(this.timeUnitTickInterval, normalizedValue);
+    currTick.setTime((long) (timeStamp - (timeStamp % this.timeUnitTickInterval.ms())));
+    int normalizedValue =
+      MathUtil.quantize(getTimeUnit(currTick, this.timeUnitTickInterval), tickStep);
+    setTimeUnit(currTick, timeUnitTickInterval, normalizedValue);
   }
   
-  
   public void setTick(double timestamp) {
-    currTick.setTime(timestamp);
+    currTick.setTime((long) timestamp);
   }
 }
