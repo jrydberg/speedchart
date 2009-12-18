@@ -31,7 +31,6 @@ public class SpeedChart extends VerticalPanel {
     String graphBase();
 
     String mainGraph();
-    String overviewGraph();
   }
 
   /**
@@ -53,17 +52,7 @@ public class SpeedChart extends VerticalPanel {
 
   private final Pan pan;
 
-  private class OverviewTimelineModel extends TimelineModel {
-    public OverviewTimelineModel() {
-      super(false, false);
-    }
-  }
-
   private DomainAxis domainAxis;
-
-  private OverviewTimelineModel overviewModel;
-
-  private LineGraph overviewGraph;
 
   static {
     StyleInjector.injectStylesheet(resources.domainAxisCss().getText()
@@ -76,13 +65,6 @@ public class SpeedChart extends VerticalPanel {
     mainModel = new TimelineModel(false, false);
     mainModel.updateBounds(0, 5);
     this.zoom = new Zoom(mainModel);
-
-    overviewModel = new OverviewTimelineModel();
-    overviewModel.updateBounds(0, 5);
-
-    overviewGraph = new LineGraph(1000, 50);
-    overviewGraph.setStyleName(resources.speedGraphCss()
-        .overviewGraph());
 
     lineGraph = new LineGraph(1000, 400);
     lineGraph.setStyleName(resources.speedGraphCss()
@@ -143,20 +125,8 @@ public class SpeedChart extends VerticalPanel {
 	}
       });    
 
-    // Hookup window bounds observer to the main timeline model and
-    // redraw the overview graphs based on changes to the model.
-    overviewModel.addWindowBoundsObserver(
-      new WindowBoundsObserver() {
-	public void onWindowBoundsChange(double domainStart, 
-	    double domainEnd) {
-	  //Log.info("redraw to: " + domainStart + ", " + domainEnd);
-	  overviewGraph.draw(new Interval(domainStart, domainEnd));
-	}
-      });    
-
     add(lineGraph);
     add(domainAxis);
-    add(overviewGraph);
   }
 
   public void fillWidth() {
@@ -165,8 +135,6 @@ public class SpeedChart extends VerticalPanel {
     Interval widestDomain = lineGraph.calcWidestDomain();
     Log.info("widest domain: " + widestDomain);
     mainModel.updateBounds(widestDomain.getStart(),
-        widestDomain.getEnd());
-    overviewModel.updateBounds(widestDomain.getStart(),
         widestDomain.getEnd());
   }
   
@@ -177,10 +145,6 @@ public class SpeedChart extends VerticalPanel {
 
   public void addDataset(Dataset ds, GraphUiProps graphUiProps) {
     lineGraph.addDataset(ds, graphUiProps);
-    
-    GraphUiProps uiProps = new GraphUiProps(Color.LIGHT_GREY,
-        Color.BLACK, 0);
-    overviewGraph.addDataset(ds, uiProps);
   }
 
   public void redraw() {
@@ -188,8 +152,6 @@ public class SpeedChart extends VerticalPanel {
          mainModel.getRightBound());
     lineGraph.draw(mainDomain);
     domainAxis.draw(mainDomain);
-    overviewGraph.draw(new Interval(overviewModel.getLeftBound(),
-        overviewModel.getRightBound()));
   }
 
 }

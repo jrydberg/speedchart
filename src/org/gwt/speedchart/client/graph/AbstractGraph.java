@@ -216,13 +216,14 @@ public abstract class AbstractGraph<T extends Tuple2D> extends FocusPanel
     canvas.setStrokeStyle(dds.graphUiProps.getStrokeColor());
     canvas.stroke();
 
-    if (!isAnimating) {
-      canvas.setGlobalAlpha(0.5);
-      canvas.setFillStyle(dds.fillGradient);
-      canvas.lineTo(lx, COORD_Y_HEIGHT);
-      canvas.lineTo(fx, COORD_Y_HEIGHT);
-      canvas.fill();
-    }
+//     if (!isAnimating) {
+//       canvas.setGlobalAlpha(0.8);
+//       canvas.setFillStyle(dds.graphUiProps.getGraphColor());
+//       //canvas.setFillStyle(dds.fillGradient);
+//       canvas.lineTo(lx, COORD_Y_HEIGHT);
+//       canvas.lineTo(fx, COORD_Y_HEIGHT);
+//       canvas.fill();
+//     }
   }
 
   /**

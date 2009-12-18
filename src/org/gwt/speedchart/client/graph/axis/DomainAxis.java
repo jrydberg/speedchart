@@ -31,6 +31,14 @@ import com.google.gwt.graphics.client.Color;
 import com.google.gwt.user.client.ui.FlowPanel;
 import org.gwt.speedchart.client.util.ArgChecker;
 import org.gwt.speedchart.client.util.Interval;
+import org.gwt.speedchart.client.util.MathUtil;
+
+import org.gwt.speedchart.client.graph.domain.TickFormatter;
+import org.gwt.speedchart.client.graph.domain.TickFormatterFactory;
+import org.gwt.speedchart.client.graph.domain.IntTickFormatterFactory;
+import org.gwt.speedchart.client.graph.domain.DateTickFormatterFactory;
+
+import com.allen_sauer.gwt.log.client.Log;
 
 
 /**
@@ -58,12 +66,21 @@ public class DomainAxis extends FlowPanel {
     Css domainAxisCss();
   }
 
-  private Resources resources;
+  private final Resources resources;
 
   private Element[] labelElements;
 
   private final Canvas canvas = new Canvas(1000, 20);
   
+  private static final int SUB_TICK_HEIGHT = 3;
+
+  private static final int TICK_HEIGHT = 6;
+
+  private double minTickSize = -1;
+
+  private TickFormatterFactory tickFormatterFactory
+      = new IntTickFormatterFactory();
+
   public DomainAxis(Resources resources) {
     this.resources = resources;
     getElement().appendChild(canvas.getElement());
@@ -73,33 +90,41 @@ public class DomainAxis extends FlowPanel {
 
   public void draw(Interval domain) {
     final double screenWidth = getElement().getOffsetWidth();
-    final double domainWidth = domain.length();
 
-    final double labelWidth = 50;
+    final double domainWidth = domain.length();
+    TickFormatter tickFormatter = getBestFormatter(domainWidth);
+
+    final double boundsRightX = screenWidth;
+    final double labelWidth = tickFormatter
+        .getMaxTickLabelWidth(resources.domainAxisCss().tickLabel());
     final double labelWidthDiv2 = labelWidth / 2.0;
-    final int maxTicksForScreen = 5;
-    final int idealTickStep = (int) domainWidth / maxTicksForScreen;
-    
+    final int maxTicksForScreen = calcMaxTicksForScreen(
+        screenWidth, domainWidth, tickFormatter);
+    final int idealTickStep = tickFormatter
+        .calcIdealTickStep(domainWidth, maxTicksForScreen);
+    //Log.info("dw=" + (long)domainWidth + "; maxTicks=" + maxTicksForScreen + 
+    //    "; idealStep=" + idealTickStep);
+    tickFormatter
+      .resetToQuantizedTick(domain.getStart(), idealTickStep);
+
     boolean stillEnoughSpace = true; // enough space to draw another tick+label?
     boolean isFirstTick = true;
     double prevTickScreenPos = 0.0;
     int actualTickStep = 0;
     int tickIndex = 0;
 
-    /*
-    log("idealTickStep=" + idealTickStep +
-        "; maxTicks=" + maxTicksForScreen +
-        "; domainStart=" + (long)plot.getDomain().getStart() +
-        "; domainLen=" + (long)plot.getDomain().length() +
-        "; quantizedDomainValue=" + (long)tickFormatter.getTickDomainValue());
-    */
+//      Log.info("idealTickStep=" + idealTickStep +
+//          "; maxTicks=" + maxTicksForScreen +
+//          "; domainStart=" + (long)domain.getStart() +
+//          "; domainLen=" + (long)domain.length() +
+//          "; quantizedDomainValue=" + (long)tickFormatter.getTickDomainValue());
 
     if (labelElements == null || labelElements.length < maxTicksForScreen) {
       if (labelElements != null) {
 	for (int i = 0; i < labelElements.length; i++) {
 	  Element labelElement = labelElements[i];
 	  if (labelElement != null) {
-	    getElement().removeChild(labelElements[i]);
+	    getElement().removeChild(labelElement);
 	  }
 	}
 	labelElements = null;
@@ -108,32 +133,52 @@ public class DomainAxis extends FlowPanel {
       labelElements = new Element[maxTicksForScreen];
     }
 
-    double currentTickValue = domain.getStart();
-
     canvas.clear();
+
     while (stillEnoughSpace && tickIndex < maxTicksForScreen) {
-      double tickScreenPos = domainToScreenX(currentTickValue, screenWidth, domain);
+      double tickScreenPos = this.domainToScreenX(
+          tickFormatter.getTickDomainValue(), screenWidth, domain);
       stillEnoughSpace = (tickScreenPos + labelWidthDiv2 < screenWidth);
 
-      /*
-      log("tickScreenPos=" + tickScreenPos + 
-          "; tickDomainValue=" + (long)tickFormatter.getTickDomainValue() +
-          "; boundsRightX=" + boundsRightX);
-      */
+//       Log.info("tickScreenPos=" + tickScreenPos + 
+// 	       "; tickDomainValue=" + (long)tickFormatter.getTickDomainValue() +
+// 	       "; boundsRightX=" + boundsRightX);
 
       if (stillEnoughSpace) {
         // Quantized tick date may have gone off the left edge; need to guard
         // against this case.
-	String tickLabel = Double.toString(currentTickValue);
-	drawTick(tickScreenPos, 6);
-	drawTickLabel(tickIndex, tickScreenPos, tickLabel, labelWidth);
+	if (tickScreenPos > labelWidthDiv2) {
+	  String tickLabel = tickFormatter.formatTick();
+	  drawTick(tickScreenPos, TICK_HEIGHT);
+	  drawTickLabel(tickIndex, tickScreenPos, tickLabel, labelWidth);
+	  tickIndex++;
+	}
       }
 
-      currentTickValue += idealTickStep;
-      tickIndex++;
+      // Draw auxiliary sub-ticks
+      if (!isFirstTick) {
+        int subTickStep = tickFormatter.getSubTickStep(actualTickStep);
+        if (subTickStep > 1) {
+          double auxTickWidth = (tickScreenPos - prevTickScreenPos)
+	      / subTickStep;
+          double auxTickPos = prevTickScreenPos + auxTickWidth;
+          for (int i = 0; i < subTickStep - 1; i++) {
+            if (MathUtil.isBounded(auxTickPos, 0, boundsRightX)) {
+              drawTick(auxTickPos, SUB_TICK_HEIGHT);
+            }
+            auxTickPos += auxTickWidth;
+          }
+        }
+      }
+
+      actualTickStep = tickFormatter.incrementTick(idealTickStep);
+      prevTickScreenPos = tickScreenPos;
+      isFirstTick = false;
     }
 
     if (tickIndex < labelElements.length) {
+//       Log.info("tickIndex=" + tickIndex
+// 	       + "; labelElements.length=" + labelElements.length);
       for (int i = tickIndex; i < labelElements.length; i++) {
 	Element labelElement = labelElements[i];
 	if (labelElement != null) {
@@ -144,12 +189,54 @@ public class DomainAxis extends FlowPanel {
     }
   }
 
+  public TickFormatter getBestFormatter(double domainWidth) {
+    return tickFormatterFactory.findBestFormatter(domainWidth);
+  }
+
+  public double getMinimumTickSize() {
+    if (minTickSize == -1) {
+      TickFormatter leafFormatter = tickFormatterFactory.getLeafFormatter();
+      minTickSize = leafFormatter.getTickInterval();
+    }
+    return minTickSize;
+  }
+
+  public TickFormatterFactory getTickFormatterFactory() {
+    return this.tickFormatterFactory;
+  }
+
+  public void setTickFormatterFactory(
+      TickFormatterFactory tickFormatterFactory) {
+    ArgChecker.isNotNull(tickFormatterFactory, "tickFormatterFactory");
+    this.tickFormatterFactory = tickFormatterFactory;
+  }
+
+  /**
+   * Calculates the maximum number of ticks that can visually fit on the domain
+   * axis given the visible screen width and the max width of a tick label for
+   * the specified {@link DateTickFormatter}.
+   */
+  private int calcMaxTicksForScreen(double screenWidth, double domainWidth, 
+      TickFormatter tickFormatter) {
+
+    // Needed to round screen width due to tiny variances that were causing the 
+    // result of this method to fluctuate by +/- 1.
+    //double screenWidth = Math.round(domainToScreenWidth(domainWidth, bounds));
+
+    double maxLabelWidth = 15 + tickFormatter
+      .getMaxTickLabelWidth(resources.domainAxisCss().tickLabel());
+
+    return (int) (screenWidth / maxLabelWidth);
+  }
+
+
+
   private double domainToScreenX(double dataX, double screenWidth, Interval domain) {
     return domain.getRatioFromPoint(dataX) * screenWidth;
   }
 
   private void drawTick(double ux, int tickLength) {
-    canvas.setFillStyle(Color.RED);
+    canvas.setFillStyle(Color.BLACK);
     canvas.fillRect(ux, 0, 2, tickLength);
   }
 
