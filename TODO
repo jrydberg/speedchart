@@ -8,3 +8,7 @@
  * should we have the values inside the graph like chronoscope
    does?
 
+* get rid of Tuple2D and introduce a DataPoint class that
+  has a domain and a single range value.
+
+ 
