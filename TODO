@@ -1,3 +1,10 @@
 
 * move Dataset.getPreferredRangeAxisInterval to GraphUiProps
 
+* rewrite and simplify the domain axis
+
+* implement a simple range axis
+ 
+ * should we have the values inside the graph like chronoscope
+   does?
+
