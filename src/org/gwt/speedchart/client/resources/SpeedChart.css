@@ -4,4 +4,14 @@
 .mainGraph {
   border-bottom-style: solid;
   border-bottom-width: 1px;
+  border-left-style: solid;
+  border-left-width: 1px;
 }
+
+.domainAxis {
+  margin-left: 41px;
+}
+
+.rangeAxis {
+}
+

@@ -22,18 +22,31 @@ public class DOMUtil {
 
   private Element stringWidthElement;
 
+  private void createStringWidthElement() {
+    stringWidthElement = Document.get().createDivElement();
+    Style style = stringWidthElement.getStyle();
+    style.setProperty("position", "absolute");
+    style.setPropertyPx("left", -6000);
+    style.setPropertyPx("top", -6000);
+    RootPanel.get().getElement().appendChild(stringWidthElement);
+  }
+
+  public int stringHeight(String text, String className) {
+    if (stringWidthElement == null) {
+      createStringWidthElement();
+    }
+    stringWidthElement.setInnerText(text);
+    stringWidthElement.setClassName(className);
+    return stringWidthElement.getClientHeight();
+  }
+
   /**
    * Return screen width of the given text evaluated with the
    * specified CSS class name.
    */
   public int stringWidth(String text, String className) {
     if (stringWidthElement == null) {
-      stringWidthElement = Document.get().createDivElement();
-      Style style = stringWidthElement.getStyle();
-      style.setProperty("position", "absolute");
-      style.setPropertyPx("left", -6000);
-      style.setPropertyPx("top", -6000);
-      RootPanel.get().getElement().appendChild(stringWidthElement);
+      createStringWidthElement();
     }
     stringWidthElement.setInnerText(text);
     stringWidthElement.setClassName(className);

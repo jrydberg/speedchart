@@ -47,7 +47,7 @@ public class SpeedChartSample implements EntryPoint {
       double ry = Math.sin(Math.PI * tmp) / Math.exp(tmp / 5.0);
 
       domainValues[i] = d;
-      rangeValues[i] = ry;
+      rangeValues[i] = ry * 2000;
       if (ry > max)
 	max = ry;
       if (ry < min)
@@ -56,7 +56,7 @@ public class SpeedChartSample implements EntryPoint {
     }
 
     return new MutableDataset2D(domainValues, rangeValues,
-				BinaryMipMapStrategy.MEAN, new Interval(min, max));
+				BinaryMipMapStrategy.MEAN); // new Interval(min, max));
   }
 
   
@@ -88,7 +88,7 @@ public class SpeedChartSample implements EntryPoint {
     double[] rangeData = new double[n];
     for (int i = 0; i < n; i++) {
       domainData[i] = d;
-      rangeData[i] = Random.nextDouble() * 1.0;
+      rangeData[i] = Random.nextDouble() * 1.0 * 2000;
       d += (60 * 60 * 24);
     }
     

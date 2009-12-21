@@ -91,6 +91,10 @@ public abstract class AbstractGraph<T extends Tuple2D> extends FocusPanel
     isAnimating = false;
   }
 
+  public Interval getVisRange() {
+    return visRange;
+  }
+
   private void calcVisibleDomainAndRange(List<DrawableDataset<T>> dds,
       Interval plotDomain) {
 

@@ -2,11 +2,14 @@ package org.gwt.speedchart.client;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.graphics.client.Color;
 import org.gwt.speedchart.client.graph.LineGraph;
 import org.gwt.speedchart.client.graph.TimelineModel;
 import org.gwt.speedchart.client.graph.axis.DomainAxis;
+import org.gwt.speedchart.client.graph.axis.RangeAxis;
 import org.gwt.speedchart.client.graph.TimelineModel.WindowBoundsObserver;
 import org.gwt.speedchart.client.util.Interval;
 import org.gwt.speedchart.client.fx.Zoom;
@@ -31,12 +34,17 @@ public class SpeedChart extends VerticalPanel {
     String graphBase();
 
     String mainGraph();
+
+    String domainAxis();
+    
+    String rangeAxis();
   }
 
   /**
    * Resources for {@link TimeLineGraph}.
    */
-  public interface Resources extends DomainAxis.Resources {
+  public interface Resources extends DomainAxis.Resources,
+      RangeAxis.Resources {
     @Source("resources/SpeedChart.css")
     @Strict
     Css speedGraphCss();
@@ -54,8 +62,11 @@ public class SpeedChart extends VerticalPanel {
 
   private DomainAxis domainAxis;
 
+  private RangeAxis rangeAxis;
+
   static {
     StyleInjector.injectStylesheet(resources.domainAxisCss().getText()
+	+ resources.rangeAxisCss().getText()
         + resources.speedGraphCss().getText());
   }
 
@@ -74,6 +85,10 @@ public class SpeedChart extends VerticalPanel {
     this.pan = new Pan(mainModel, lineGraph);
 
     domainAxis = new DomainAxis(resources);
+    domainAxis.addStyleName(resources.speedGraphCss().domainAxis());
+
+    rangeAxis = new RangeAxis(resources);
+    rangeAxis.addStyleName(resources.speedGraphCss().rangeAxis());
 
     lineGraph.addMouseWheelHandler(new MouseWheelHandler() {
       public void onMouseWheel(MouseWheelEvent event) {
@@ -120,12 +135,17 @@ public class SpeedChart extends VerticalPanel {
 	public void onWindowBoundsChange(double domainStart, 
 	    double domainEnd) {
 	  //Log.info("redraw to: " + domainStart + ", " + domainEnd);
-	  lineGraph.draw(new Interval(domainStart, domainEnd));
-	  domainAxis.draw(new Interval(domainStart, domainEnd));
+	  redraw();
 	}
       });    
 
-    add(lineGraph);
+    HorizontalPanel horizPanel = new HorizontalPanel();
+    horizPanel.add(rangeAxis);
+    horizPanel.add(lineGraph);
+    add(horizPanel);
+
+    //add(rangeAxis);
+    //add(lineGraph);
     add(domainAxis);
   }
 
@@ -152,6 +172,7 @@ public class SpeedChart extends VerticalPanel {
          mainModel.getRightBound());
     lineGraph.draw(mainDomain);
     domainAxis.draw(mainDomain);
+    rangeAxis.draw(lineGraph.getVisRange());
   }
 
 }
