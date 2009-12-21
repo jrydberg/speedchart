@@ -40,7 +40,7 @@
       <!-- add jvmarg -Xss16M or similar if you see a StackOverflowError -->
       <jvmarg value="-Xmx256M"/>
       <!-- Additional arguments like -style PRETTY or -logLevel DEBUG -->
-      <arg value="org.gwt.speedchart.SpeedChart"/>
+      <arg value="org.gwt.speedchart.SpeedChartSample"/>
     </java>
   </target>
 
@@ -56,6 +56,13 @@
       <!-- Additional arguments like -style PRETTY or -logLevel DEBUG -->
       <arg value="org.gwt.speedchart.SpeedChart"/>
     </java>
+  </target>
+
+  <target name="jar">
+    <mkdir dir="dist"/>
+    <jar destfile="dist/speedchart.jar">
+      <fileset dir="src" includes="**/*" excludes="**/*~"/>
+    </jar>
   </target>
 
 <!--
