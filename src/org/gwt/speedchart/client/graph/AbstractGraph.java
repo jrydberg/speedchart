@@ -25,6 +25,7 @@ import com.google.gwt.graphics.client.Canvas;
 import com.google.gwt.graphics.client.Color;
 import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.RequiresResize;
 
 import org.gwt.speedchart.client.GraphUiProps;
 import org.gwt.speedchart.client.Dataset;
@@ -50,6 +51,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.google.gwt.dom.client.Element;
 
 /**
  *
@@ -57,10 +59,10 @@ import com.allen_sauer.gwt.log.client.Log;
  * @author Johan Rydberg &lt;johan.rydberg@gmail.com&gt;
  */
 public abstract class AbstractGraph<T extends Tuple2D> extends FocusPanel
-    implements AnimationListener {
+    implements AnimationListener, RequiresResize {
 
-  private final int COORD_X_WIDTH;
-  private final int COORD_Y_HEIGHT;
+  private int COORD_X_WIDTH;
+  private int COORD_Y_HEIGHT;
 
   private boolean isAnimating = false;
 
@@ -72,6 +74,7 @@ public abstract class AbstractGraph<T extends Tuple2D> extends FocusPanel
   protected AbstractGraph(int width, int height) {
     COORD_X_WIDTH = width;
     COORD_Y_HEIGHT = height;
+    Log.info("create canvas");
     canvas = new Canvas(COORD_X_WIDTH, COORD_Y_HEIGHT);
     setElement(canvas.getElement());
   }
@@ -93,6 +96,23 @@ public abstract class AbstractGraph<T extends Tuple2D> extends FocusPanel
 
   public Interval getVisRange() {
     return visRange;
+  }
+
+  public void setSize(int coordWidth, int coordHeight) {
+    COORD_X_WIDTH = coordWidth;
+    COORD_Y_HEIGHT = coordHeight;
+    canvas.resize(COORD_X_WIDTH, COORD_Y_HEIGHT);
+    canvas.setCoordSize(COORD_X_WIDTH, COORD_Y_HEIGHT);
+  }
+
+  public void onResize() {
+    Element parentElem = getElement().getParentElement();
+    final int clientWidth = parentElem.getClientWidth();
+    final int clientHeight = parentElem.getClientHeight();
+
+    Log.info("onResize: " + parentElem.getOffsetWidth()
+	     + " height:" + parentElem.getOffsetHeight());
+    setSize(clientWidth - 1, clientHeight - 1);
   }
 
   private void calcVisibleDomainAndRange(List<DrawableDataset<T>> dds,
@@ -220,14 +240,14 @@ public abstract class AbstractGraph<T extends Tuple2D> extends FocusPanel
     canvas.setStrokeStyle(dds.graphUiProps.getStrokeColor());
     canvas.stroke();
 
-//     if (!isAnimating) {
-//       canvas.setGlobalAlpha(0.8);
-//       canvas.setFillStyle(dds.graphUiProps.getGraphColor());
-//       //canvas.setFillStyle(dds.fillGradient);
-//       canvas.lineTo(lx, COORD_Y_HEIGHT);
-//       canvas.lineTo(fx, COORD_Y_HEIGHT);
-//       canvas.fill();
-//     }
+    if (!isAnimating) {
+      canvas.setGlobalAlpha(0.8);
+      canvas.setFillStyle(dds.graphUiProps.getGraphColor());
+      //canvas.setFillStyle(dds.fillGradient);
+      canvas.lineTo(lx, COORD_Y_HEIGHT);
+      canvas.lineTo(fx, COORD_Y_HEIGHT);
+      canvas.fill();
+    }
   }
 
   /**
@@ -359,9 +379,8 @@ public abstract class AbstractGraph<T extends Tuple2D> extends FocusPanel
     drawableDataset.maxDrawablePoints = getCurrentMaxDrawableDatapoints();
     drawableDataset.fillGradient = canvas.createLinearGradient(0, 0, 
         0, COORD_Y_HEIGHT);
-    drawableDataset.fillGradient.addColorStop(0.8, Color.WHITE);
+    drawableDataset.fillGradient.addColorStop(0.8, Color.TRANSPARENT);
     drawableDataset.fillGradient.addColorStop(0, graphUiProps.getGraphColor());
-    //drawableDataset.fillGradient.addColorStop(0, graphUiProps.getGraphColor());
 
     drawableDatasets.add(drawableDataset);
   }

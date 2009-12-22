@@ -32,13 +32,14 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import org.gwt.speedchart.client.util.ArgChecker;
 import org.gwt.speedchart.client.util.Interval;
 import org.gwt.speedchart.client.util.MathUtil;
+import com.google.gwt.user.client.ui.RequiresResize;
 
 import org.gwt.speedchart.client.graph.domain.TickFormatter;
 import org.gwt.speedchart.client.graph.domain.TickFormatterFactory;
 import org.gwt.speedchart.client.graph.domain.IntTickFormatterFactory;
 import org.gwt.speedchart.client.graph.domain.DateTickFormatterFactory;
 
-import com.allen_sauer.gwt.log.client.Log;
+//import com.allen_sauer.gwt.log.client.Log;
 
 
 /**
@@ -46,7 +47,7 @@ import com.allen_sauer.gwt.log.client.Log;
  * @author Johan Rydberg &lt;johan.rydberg@gmail.com&gt;
  */
 
-public class DomainAxis extends FlowPanel {
+public class DomainAxis extends FlowPanel implements RequiresResize {
 
   /**
    * Css stylenames.
@@ -86,6 +87,23 @@ public class DomainAxis extends FlowPanel {
     getElement().appendChild(canvas.getElement());
     setStyleName(resources.domainAxisCss().axis());
     getElement().getStyle().setProperty("position", "relative");
+  }
+
+  public void setSize(int coordWidth, int coordHeight) {
+    //COORD_X_WIDTH = coordWidth;
+    //COORD_Y_HEIGHT = coordHeight;
+    canvas.resize(coordWidth, coordHeight);
+    canvas.setCoordSize(coordWidth, coordHeight);
+  }
+
+  public void onResize() {
+    Element parentElem = getElement().getParentElement();
+    final int clientWidth = getElement().getClientWidth();
+    final int clientHeight = getElement().getClientHeight();
+
+    //Log.info("onResize: " + clientWidth
+    //	     + " height:" + clientHeight);
+    setSize(clientWidth - 1, clientHeight - 1);
   }
 
   public void draw(Interval domain) {

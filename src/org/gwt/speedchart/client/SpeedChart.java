@@ -3,9 +3,16 @@ package org.gwt.speedchart.client;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.graphics.client.Color;
+
+import com.google.gwt.user.client.ui.LayoutPanel;
+//import com.google.gwt.layout.client.Layout;
+//import com.google.gwt.layout.client.Layout.Layer;
+import com.google.gwt.dom.client.Style.Unit;
+
 import org.gwt.speedchart.client.graph.LineGraph;
 import org.gwt.speedchart.client.graph.TimelineModel;
 import org.gwt.speedchart.client.graph.axis.DomainAxis;
@@ -25,7 +32,7 @@ import com.google.gwt.resources.client.CssResource.Strict;
 import com.allen_sauer.gwt.log.client.Log;
 
 
-public class SpeedChart extends VerticalPanel {
+public class SpeedChart extends LayoutPanel {
 
   /**
    * Css stylenames.
@@ -64,10 +71,17 @@ public class SpeedChart extends VerticalPanel {
 
   private RangeAxis rangeAxis;
 
+  private int numDatasets = 0;
+
   static {
     StyleInjector.injectStylesheet(resources.domainAxisCss().getText()
 	+ resources.rangeAxisCss().getText()
         + resources.speedGraphCss().getText());
+  }
+
+  public SpeedChart(int defaultWidth, int defaultHeight) {
+    this();
+    setPixelSize(defaultWidth, defaultHeight);
   }
 
   public SpeedChart() {
@@ -139,14 +153,23 @@ public class SpeedChart extends VerticalPanel {
 	}
       });    
 
-    HorizontalPanel horizPanel = new HorizontalPanel();
-    horizPanel.add(rangeAxis);
-    horizPanel.add(lineGraph);
-    add(horizPanel);
+    add(rangeAxis);
+    setWidgetLeftWidth(rangeAxis, 0, Unit.PX, 40, Unit.PX);
+    setWidgetTopBottom(rangeAxis, 0, Unit.PX, 20, Unit.PX);
 
-    //add(rangeAxis);
-    //add(lineGraph);
+    add(lineGraph);
+    setWidgetLeftRight(lineGraph, 40, Unit.PX, 0, Unit.PX);
+    setWidgetTopBottom(lineGraph, 0, Unit.PX, 20, Unit.PX);
+
     add(domainAxis);
+    setWidgetLeftRight(domainAxis, 40, Unit.PX, 0, Unit.PX);
+    setWidgetBottomHeight(domainAxis, 0, Unit.PX, 20, Unit.PX);
+  }
+
+  @Override
+  public void onLoad() {
+    forceLayout();
+    super.onLoad();
   }
 
   public void fillWidth() {
@@ -165,6 +188,14 @@ public class SpeedChart extends VerticalPanel {
 
   public void addDataset(Dataset ds, GraphUiProps graphUiProps) {
     lineGraph.addDataset(ds, graphUiProps);
+    numDatasets++;
+  }
+
+  @Override
+  public void onResize() {
+    super.onResize();
+    if (numDatasets != 0)
+      redraw();
   }
 
   public void redraw() {

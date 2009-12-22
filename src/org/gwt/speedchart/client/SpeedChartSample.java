@@ -17,6 +17,7 @@ import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
@@ -64,18 +65,9 @@ public class SpeedChartSample implements EntryPoint {
    * This is the entry point method.
    */
   public void onModuleLoad() {
-    final Button sendButton = new Button("Send");
-    final TextBox nameField = new TextBox();
-    nameField.setText("GWT User");
-
-
-    // We can add style names to widgets
-    sendButton.addStyleName("sendButton");
-
     // Add the nameField and sendButton to the RootPanel
     // Use RootPanel.get() to get the entire body element
     final SpeedChart speedChart = new SpeedChart();
-    RootPanel.get("nameFieldContainer").add(speedChart);
 
     GraphUiProps graphUiProps = new GraphUiProps(Color.BLUE,
         Color.BLACK, 0);
@@ -97,17 +89,7 @@ public class SpeedChartSample implements EntryPoint {
     speedChart.addDataset(getBasicDataset(), graphUiProps);
     speedChart.addDataset(dataset, graphUiProps2);
     speedChart.fillWidth();
-    //speedChart.redraw();
 
-    Element divElement = Document.get().createDivElement();
-    Style style = divElement.getStyle();
-    style.setProperty("position", "absolute");
-    style.setPropertyPx("left", -1000);
-    style.setPropertyPx("top", -1000);
-    divElement.setInnerText("HELLO WORLD");
-    RootPanel.get().getElement().appendChild(divElement);
-    Log.info("width is " + divElement.getClientWidth());
-
-    //RootPanel.get("sendButtonContainer").add(sendButton);
+    RootLayoutPanel.get().add(speedChart);
   }
 }
