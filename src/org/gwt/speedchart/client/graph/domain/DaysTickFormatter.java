@@ -23,7 +23,6 @@ package org.gwt.speedchart.client.graph.domain;
 
 import org.gwt.speedchart.client.util.MathUtil;
 import org.gwt.speedchart.client.util.TimeUnit;
-import org.gwt.speedchart.client.util.date.ChronoDate;
 
 public class DaysTickFormatter extends DateTickFormatter {
 
