@@ -66,7 +66,7 @@ public abstract class AbstractGraph<T extends Tuple2D> extends FocusPanel
 
   private boolean isAnimating = false;
 
-  private final List<DrawableDataset<T>> drawableDatasets =
+  protected final List<DrawableDataset<T>> drawableDatasets =
       new ArrayList<DrawableDataset<T>>();
   
   protected final Canvas canvas;
@@ -351,7 +351,7 @@ public abstract class AbstractGraph<T extends Tuple2D> extends FocusPanel
     drawDatasets();
   }
   
-  private void drawDatasets() {
+  protected void drawDatasets() {
     calcVisibleDomainAndRange(drawableDatasets, visDomain);
 
     //Log.info("visible domain is: " + visDomain.getStart() 
@@ -395,7 +395,7 @@ public abstract class AbstractGraph<T extends Tuple2D> extends FocusPanel
    * DatasetRenderer} report as the maximum number of datapoints that they can
    * handle.
    */
-  private int getMaxDrawableDataPoints(DrawableDataset dds) {
+  protected int getMaxDrawableDataPoints(DrawableDataset dds) {
     int maxDrawablePoints = getCurrentMaxDrawableDatapoints();
     return Math.min(dds.maxDrawablePoints, maxDrawablePoints);
   }

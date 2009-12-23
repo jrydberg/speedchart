@@ -62,7 +62,7 @@ public class SpeedChartSample implements EntryPoint {
       double ry = Random.nextDouble();
 
       domainValues[i] = d;
-      rangeValues[i] = ry * 100;
+      rangeValues[i] = ry * 2000;
 
       d += (60 * 1000);
     }
@@ -81,8 +81,7 @@ public class SpeedChartSample implements EntryPoint {
     double[] rangeValues = new double[numSamples];
 
     for (int i = 0; i < numSamples; i++) {
-      double tmp = 5.0 * (double) i / (double) numSamples;
-      double ry = Math.sin(Math.PI * tmp) / Math.exp(tmp / 5.0);
+      double ry = Random.nextDouble();
 
       domainValues[i] = d;
       rangeValues[i] = ry * 2000;
@@ -132,6 +131,25 @@ public class SpeedChartSample implements EntryPoint {
     return panel;
   }
 
+  public Widget createAreaChartExample() {
+
+    GraphUiProps dsUiProps1 = new GraphUiProps(Color.BLUE,
+        Color.BLACK, 0);
+    GraphUiProps dsUiProps2 = new GraphUiProps(Color.RED,
+        Color.BLACK, 0);
+
+    final AreaChart chart = new AreaChart();
+    chart.addDataset(getBasicDataset(), dsUiProps1);
+    chart.addDataset(getRandomDataset(), dsUiProps2);
+    chart.zoomAll();
+    
+    final LayoutPanel panel = new LayoutPanel();
+    panel.add(chart);
+    panel.setWidgetTopHeight(chart, 50, Unit.PX, 50, Unit.PCT);
+    panel.setWidgetLeftRight(chart, 20, Unit.PCT, 20, Unit.PCT);
+    return panel;
+  }
+
   /**
    * This is the entry point method.
    */
@@ -140,6 +158,7 @@ public class SpeedChartSample implements EntryPoint {
     
     tabPanel.add(createSpeedChartExample(), "SpeedChart");
     tabPanel.add(createSparklineExample(), "Sparklines");
+    tabPanel.add(createAreaChartExample(), "AreaChart");
 
     RootLayoutPanel.get().add(tabPanel);
 
