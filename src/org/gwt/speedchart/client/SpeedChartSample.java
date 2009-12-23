@@ -202,9 +202,9 @@ public class SpeedChartSample implements EntryPoint {
   public void onModuleLoad() {
     final TabLayoutPanel tabPanel = new TabLayoutPanel(30, Unit.PX);
     
-    //tabPanel.add(createSpeedChartExample(), "SpeedChart");
+    tabPanel.add(createSpeedChartExample(), "SpeedChart");
     tabPanel.add(createSparklineExample(), "Sparklines");
-    //tabPanel.add(createAreaChartExample(), "AreaChart");
+    tabPanel.add(createAreaChartExample(), "AreaChart");
 
     RootLayoutPanel.get().add(tabPanel);
 
