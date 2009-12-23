@@ -2,6 +2,7 @@ package org.gwt.speedchart.client;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.user.client.Random;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.client.ui.Button;
@@ -9,6 +10,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.graphics.client.Color;
 import org.gwt.speedchart.client.data.MutableDataset2D;
 import org.gwt.speedchart.client.data.BinaryMipMapStrategy;
+import org.gwt.speedchart.client.data.Mutation;
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.ui.TabLayoutPanel;
 import com.google.gwt.user.client.ui.LayoutPanel;
@@ -22,6 +24,8 @@ import com.google.gwt.event.dom.client.ClickEvent;
 
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DeferredCommand;
+
+import java.util.Date;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
@@ -100,6 +104,27 @@ public class SpeedChartSample implements EntryPoint {
     return new MutableDataset2D(domainValues, rangeValues,
         BinaryMipMapStrategy.MEAN); // new Interval(min, max));
   }
+
+  public MutableDataset getSmallRealtimeDataset() {
+    int numSamples = 10;
+
+    double d = (double) new Date().getTime();
+
+    double[] domainValues = new double[numSamples];
+    double[] rangeValues = new double[numSamples];
+
+    for (int i = 0; i < numSamples; i++) {
+      double ry = Random.nextDouble();
+
+      domainValues[i] = d;
+      rangeValues[i] = ry * 2000;
+      d += 1000;
+    }
+
+    return new MutableDataset2D(domainValues, rangeValues,
+        BinaryMipMapStrategy.MEAN);
+  }
+
 
   private static final class DomainWidthClickHandler 
       implements ClickHandler {
@@ -196,6 +221,34 @@ public class SpeedChartSample implements EntryPoint {
     return panel;
   }
 
+  public Widget createStreamingExample() {
+
+    GraphUiProps dsUiProps1 = new GraphUiProps(Color.BLUE,
+        Color.BLACK, 0);
+
+    final SpeedChart chart = new SpeedChart();
+    final MutableDataset ds = getSmallRealtimeDataset();
+    chart.addDataset(ds, dsUiProps1);
+    chart.zoomAll();
+    
+    chart.getTimelineModel().setStreaming(true);
+
+    Timer t = new Timer() {
+	public void run() {
+	  double d = (double) new Date().getTime();
+	  ds.mutate(Mutation.append(d, Random.nextDouble() 
+              * 2000));
+	}
+      };
+    t.scheduleRepeating(1000);
+
+    final LayoutPanel panel = new LayoutPanel();
+    panel.add(chart);
+    panel.setWidgetTopHeight(chart, 50, Unit.PX, 50, Unit.PCT);
+    panel.setWidgetLeftRight(chart, 20, Unit.PCT, 20, Unit.PCT);
+    return panel;
+  }
+
   /**
    * This is the entry point method.
    */
@@ -205,6 +258,7 @@ public class SpeedChartSample implements EntryPoint {
     tabPanel.add(createSpeedChartExample(), "SpeedChart");
     tabPanel.add(createSparklineExample(), "Sparklines");
     tabPanel.add(createAreaChartExample(), "AreaChart");
+    tabPanel.add(createStreamingExample(), "Steaming");
 
     RootLayoutPanel.get().add(tabPanel);
 
