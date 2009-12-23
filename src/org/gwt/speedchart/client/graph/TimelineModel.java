@@ -17,15 +17,19 @@ package org.gwt.speedchart.client.graph;
 
 import com.google.gwt.user.client.Timer;
 import org.gwt.speedchart.client.util.Interval;
+import org.gwt.speedchart.client.Dataset;
+import org.gwt.speedchart.client.data.DatasetListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import com.allen_sauer.gwt.log.client.Log;
+
 /**
  * Update, zoom and tick logic for TimeLines. This class is responsible for
- * updating the bounds of {@link TimelineGraph}s.
+ * updating the bounds of {@link AbstractGraph}s.
  */
-public class TimelineModel implements DomainObserver, Boundable {
+public class TimelineModel implements Boundable, DatasetListener  {
   /**
    * Interface for receiving notification of timeline bounds changes for the
    * currently viewed window.
@@ -59,14 +63,12 @@ public class TimelineModel implements DomainObserver, Boundable {
     private void timerDispatch() {
       if (isDirty) {
         onModelDataRefreshTick(mostRecentDomainValue);
-        t.schedule(100); //Constants.REFRESH_RATE);
+        t.schedule(1000); //Constants.REFRESH_RATE);
       } else {
         timerActive = false;
       }
     }
   }
-
-  private final List<DomainObserver> domainObservers = new ArrayList<DomainObserver>();
 
   private boolean isDirty = false;
 
@@ -95,15 +97,13 @@ public class TimelineModel implements DomainObserver, Boundable {
     rightBound = 10000; //Constants.DEFAULT_GRAPH_WINDOW_SIZE;
   }
 
-  public void addDomainObserver(DomainObserver observer) {
-    domainObservers.add(observer);
-  }
-
   public void addWindowBoundsObserver(WindowBoundsObserver observer) {
     windowObservers.add(observer);
   }
 
   public void fireBoundsChangeEvent(double start, double end) {
+    Log.info("fire bounds change: " + start + "; " + end);
+    
     for (int i = 0, n = windowObservers.size(); i < n; i++) {
       WindowBoundsObserver observer = windowObservers.get(i);
       observer.onWindowBoundsChange(start, end);
@@ -132,25 +132,6 @@ public class TimelineModel implements DomainObserver, Boundable {
   }
 
   /**
-   * When we get a new data point from one of the GraphModels we are observing,
-   * our domain changes. We update the graphs on a tick, so we determine here if
-   * we should restart the timer and mark the graph as dirty.
-   */
-  public void onDomainChange(double newValue) {
-    mostRecentDomainValue = newValue;
-    if (newValue <= getRightBound() || showStreaming) {
-      isDirty = true;
-    }
-    if (!updateController.timerActive) {
-      updateController.restartUpdateTimer();
-    }
-
-    for (int i = 0, n = domainObservers.size(); i < n; ++i) {
-      domainObservers.get(i).onDomainChange(newValue);
-    }
-  }
-
-  /**
    * An update tick. Lets us know we should update our window bounds.
    * 
    * @param now tick time
@@ -170,14 +151,42 @@ public class TimelineModel implements DomainObserver, Boundable {
   }
 
   /**
+   * Update timeline model based on the new dataset.
+   */
+  public void onDatasetAdded(Dataset dataset) {
+    Interval extrema = dataset.getDomainExtrema();
+    if (extrema.getStart() < getLeftBound() && !showStreaming) {
+      leftBound = extrema.getStart();
+      isDirty = true;
+    }
+    onDatasetChanged(dataset, extrema.getStart(), extrema.getEnd());
+  }
+
+  public void onDatasetRemoved(Dataset dataset) {
+  }
+
+  /**
+   * When we get a new data point from one of the {@link Dataset}s we
+   * are observing, our domain changes. We update the graphs on a
+   * tick, so we determine here if we should restart the timer and
+   * mark the graph as dirty.
+   */
+  public void onDatasetChanged(Dataset dataset, double domainStart, 
+      double domainEnd) {
+    mostRecentDomainValue = Math.max(mostRecentDomainValue, domainEnd);
+    if (mostRecentDomainValue <= getRightBound() || showStreaming) {
+      isDirty = true;
+    }
+    if (!updateController.timerActive) {
+      updateController.restartUpdateTimer();
+    }
+  }
+
+  /**
    * Calls setBounds with the existing left and right bounds.
    */
   public void refresh() {
     updateBounds(leftBound, rightBound);
-  }
-
-  public void removeDomainObserver(DomainObserver observer) {
-    domainObservers.remove(observer);
   }
 
   public void removeWindowBoundsObserver(WindowBoundsObserver observer) {

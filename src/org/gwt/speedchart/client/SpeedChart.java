@@ -32,7 +32,7 @@ import com.google.gwt.resources.client.CssResource.Strict;
 import com.allen_sauer.gwt.log.client.Log;
 
 
-public class SpeedChart extends LayoutPanel {
+public class SpeedChart extends AbstractChart {
 
   /**
    * Css stylenames.
@@ -57,9 +57,7 @@ public class SpeedChart extends LayoutPanel {
     Css speedGraphCss();
   }
 
-  private static final Resources resources = GWT.create(Resources.class);
-
-  private TimelineModel mainModel;
+  private final Resources resources;
 
   private LineGraph lineGraph;
 
@@ -71,32 +69,33 @@ public class SpeedChart extends LayoutPanel {
 
   private RangeAxis rangeAxis;
 
-  private int numDatasets = 0;
-
   static {
+    final Resources resources = GWT.create(Resources.class);
     StyleInjector.injectStylesheet(resources.domainAxisCss().getText()
 	+ resources.rangeAxisCss().getText()
         + resources.speedGraphCss().getText());
   }
 
-  public SpeedChart(int defaultWidth, int defaultHeight) {
-    this();
-    setPixelSize(defaultWidth, defaultHeight);
+  public SpeedChart() {
+    this(new TimelineModel(false, true));
   }
 
-  public SpeedChart() {
+  public SpeedChart(TimelineModel timelineModel) {
+    this((Resources) GWT.create(Resources.class), timelineModel);
+  }
+
+  public SpeedChart(Resources resources, TimelineModel timelineModel) {
+    super(timelineModel);
+    this.resources = resources;
     setStyleName(resources.speedGraphCss().graphBase());
 
-    mainModel = new TimelineModel(false, false);
-    mainModel.updateBounds(0, 5);
-    this.zoom = new Zoom(mainModel);
+    this.zoom = new Zoom(getTimelineModel());
 
     lineGraph = new LineGraph(1000, 400);
-    lineGraph.setStyleName(resources.speedGraphCss()
-        .mainGraph());
+    lineGraph.setStyleName(resources.speedGraphCss().mainGraph());
     zoom.addListener(lineGraph);
 
-    this.pan = new Pan(mainModel, lineGraph);
+    this.pan = new Pan(getTimelineModel(), lineGraph);
 
     domainAxis = new DomainAxis(resources);
     domainAxis.addStyleName(resources.speedGraphCss().domainAxis());
@@ -116,7 +115,7 @@ public class SpeedChart extends LayoutPanel {
 	if (deltaY < -5)
 	  deltaY = -3;
 
-	double domainWidth = mainModel.getBounds().length();
+	double domainWidth = getTimelineModel().getBounds().length();
 	// delta is auto coerced to double
 	//Log.info("domainWidth is " + domainWidth);
 	//Log.info("deltaY is " + deltaY);
@@ -126,8 +125,8 @@ public class SpeedChart extends LayoutPanel {
 	//Log.info("domainDelta: " + domainDelta);
 
 	// move the bounds
-	double newLeft = mainModel.getLeftBound() + domainDelta;
-	double newRight = mainModel.getRightBound() - domainDelta;
+	double newLeft = getTimelineModel().getLeftBound() + domainDelta;
+	double newRight = getTimelineModel().getRightBound() - domainDelta;
 	// catch cross over
 	newLeft = Math.min(newLeft, newRight);
 	newRight = Math.max(newLeft, newRight);
@@ -140,18 +139,6 @@ public class SpeedChart extends LayoutPanel {
 	zoom.zoom(300, new Interval(newLeft, newRight));
       }
     });
-
-
-    // Hookup window bounds observer to the main timeline model and
-    // redraw the main graphs based on changes to the model.
-    mainModel.addWindowBoundsObserver(
-      new WindowBoundsObserver() {
-	public void onWindowBoundsChange(double domainStart, 
-	    double domainEnd) {
-	  //Log.info("redraw to: " + domainStart + ", " + domainEnd);
-	  redraw();
-	}
-      });    
 
     add(rangeAxis);
     setWidgetLeftWidth(rangeAxis, 0, Unit.PX, 40, Unit.PX);
@@ -167,43 +154,25 @@ public class SpeedChart extends LayoutPanel {
   }
 
   @Override
-  public void onLoad() {
-    forceLayout();
-    super.onLoad();
-  }
-
-  public void fillWidth() {
-    // FIXME: use getDomainExtrema for each dataset instead 
-
-    Interval widestDomain = lineGraph.calcWidestDomain();
-    Log.info("widest domain: " + widestDomain);
-    mainModel.updateBounds(widestDomain.getStart(),
-        widestDomain.getEnd());
-  }
-  
-//   private void sinkEvents() {
-//     MainEventListener mainEventListener = new MainEventListener();
-//     lineGraph.addMouseWheelListener(mainEventListener);
-//   }
-
   public void addDataset(Dataset ds, GraphUiProps graphUiProps) {
     lineGraph.addDataset(ds, graphUiProps);
-    numDatasets++;
+    super.addDataset(ds, graphUiProps);
   }
 
   @Override
-  public void onResize() {
-    super.onResize();
-    if (numDatasets != 0)
-      redraw();
+  public void redraw() {
+    Interval domain = getDomain();
+    lineGraph.draw(domain);
+    if (datasets.size() != 0) {
+      domainAxis.draw(domain);
+      rangeAxis.draw(lineGraph.getVisRange());
+    }
   }
 
-  public void redraw() {
-    Interval mainDomain = new Interval(mainModel.getLeftBound(),
-         mainModel.getRightBound());
-    lineGraph.draw(mainDomain);
-    domainAxis.draw(mainDomain);
-    rangeAxis.draw(lineGraph.getVisRange());
+  @Override
+  public boolean removeDataset(Dataset ds) {
+    lineGraph.removeDataset(ds);
+    return super.removeDataset(ds);
   }
 
 }

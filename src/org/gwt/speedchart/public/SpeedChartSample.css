@@ -1,0 +1,17 @@
+.gwt-TabLayoutPanel {
+}
+
+.gwt-TabLayoutPanel .gwt-TabLayoutPanelTabs {
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+  border-bottom-color: #88;
+}
+
+.gwt-TabLayoutPanel .gwt-TabLayoutPanelTabs .gwt-TabLayoutPanelTab-selected {
+  background-color: #ccc;
+}
+
+.gwt-TabLayoutPanel .gwt-TabLayoutPanelTabs .gwt-TabLayoutPanelTabInner {
+  padding-left: 10px;
+  padding-right: 10px;
+}

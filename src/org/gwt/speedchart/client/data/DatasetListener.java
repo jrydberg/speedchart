@@ -20,10 +20,8 @@ public interface DatasetListener<T extends Tuple2D> {
    * Fired when a dataset is removed from this container.
    * 
    * @param dataset - The dataset that was just removed.
-   * @param datasetIndex - the ordinal position of the dataset that
-   *    was just removed.  
    */
-  void onDatasetRemoved(Dataset<T> dataset, int datasetIndex);
+  void onDatasetRemoved(Dataset<T> dataset);
   
   /**
    * The dataset that was just added to this container.

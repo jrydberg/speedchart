@@ -182,7 +182,8 @@ public abstract class AbstractGraph<T extends Tuple2D> extends FocusPanel
 //       rangeAxis.adjustVisibleRange(visRange);
     }
 
-    Log.info("visible range is from " + visRange.getStart() + " to " + visRange.getEnd());
+    if (visRange != null)
+      Log.info("visible range is from " + visRange.getStart() + " to " + visRange.getEnd());
   }
 
   private double lx, ly, fx;
