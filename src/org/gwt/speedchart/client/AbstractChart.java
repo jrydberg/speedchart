@@ -96,6 +96,14 @@ public abstract class AbstractChart extends LayoutPanel implements RequiresResiz
 //     forceLayout();
 //   }
 
+  public void zoomToWidth(double domainWidth) {
+    double midpoint = getTimelineModel().getBounds().midpoint();
+    final double widthDiv2 = domainWidth / 2.0;
+    Interval newDomain = new Interval(midpoint - widthDiv2,
+        midpoint + widthDiv2);
+    this.transitionTo(newDomain);
+  }
+
   /**
    * Update timeline model of the chart so that it covers all
    * datasets.

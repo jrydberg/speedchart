@@ -155,11 +155,8 @@ public class TimelineModel implements Boundable, DatasetListener  {
    */
   public void onDatasetAdded(Dataset dataset) {
     Interval extrema = dataset.getDomainExtrema();
-    if (extrema.getStart() < getLeftBound() && !showStreaming) {
-      leftBound = extrema.getStart();
-      isDirty = true;
-    }
-    onDatasetChanged(dataset, extrema.getStart(), extrema.getEnd());
+    updateBounds(Math.min(leftBound, extrema.getStart()),
+        Math.max(rightBound, extrema.getEnd()));
   }
 
   public void onDatasetRemoved(Dataset dataset) {

@@ -58,6 +58,8 @@ public class SparklineChart extends AbstractChart {
 
   private static boolean styleInjected;
 
+  private final Zoom zoom;
+
   public SparklineChart() {
     this(new TimelineModel(true, false));
   }
@@ -75,10 +77,14 @@ public class SparklineChart extends AbstractChart {
     super(timelineModel);
     this.resources = resources;
     setStyleName(resources.sparklineCss().sparkline());
-   
+    
     // Create the line graph with any size what-so-ever since it will
     // be re-sized anyway.
     lineGraph = new LineGraph(100, 40);
+
+    // Add zoom that we use for transitions, but do not add the graph
+    // as listener since we do want to transition with full graphics.
+    zoom = new Zoom(getTimelineModel());
 
     add(lineGraph);
     setWidgetLeftRight(lineGraph, 0, Unit.PX, 0, Unit.PX);
@@ -127,10 +133,16 @@ public class SparklineChart extends AbstractChart {
    * @param domainWidth new domain width
    */
   public void setDomainWidth(double domainWidth) {
-    Interval newDomainInterval = new Interval(
+    Interval newDomain = new Interval(
         getTimelineModel().getRightBound() - domainWidth,
         getTimelineModel().getRightBound());
-    this.transitionTo(newDomainInterval);
+    transitionTo(newDomain);
+    //getTimelineModel().updateBounds(newDomain.getStart(),
+    //    newDomain.getEnd());
   }
 
+  @Override
+  protected void transitionTo(Interval newDomain) {
+    zoom.zoom(300, newDomain);
+  }
 }
