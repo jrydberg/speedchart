@@ -12,3 +12,7 @@
   has a domain and a single range value.
 
  
+* Timeline Model:
+ 
+ * CrahUiProps should have a "minimum resolution", that sets the
+   min width of the domain window.
