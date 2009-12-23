@@ -86,6 +86,8 @@ public class AreaGraph<T extends Tuple2D>
 
     public Iterator<Tuple2D> iterator;
 
+    public int numSamples;
+      
     public double getRange() {
       return last.getRange0();
     }
@@ -102,9 +104,10 @@ public class AreaGraph<T extends Tuple2D>
     }
 
     public void calcLineTrend() {
-      if (iterator.hasNext()) {
+      if (iterator.hasNext() && numSamples != 0) {
 	last = next;
 	next = iterator.next();
+	--numSamples;
 	
 	trend = (next.getRange0() - last.getRange0())
 	  / (next.getDomain() - last.getDomain());
@@ -156,6 +159,8 @@ public class AreaGraph<T extends Tuple2D>
           bestMipMapRegion.getStartIndex());
       plannedDataset.iterator = iterator;
       plannedDataset.last = plannedDataset.next = iterator.next();
+      plannedDataset.numSamples = (bestMipMapRegion.getEndIndex()
+          - bestMipMapRegion.getStartIndex());
       plannedDatasets[datasetIdx] = plannedDataset;
     }
 
@@ -229,8 +234,9 @@ public class AreaGraph<T extends Tuple2D>
     final int numSamples = planning.domainArray.size();
     int methodCallCount = 0;
 
+    LocalTuple curvePt = new LocalTuple();
+
     for (int sampleIdx = 0; sampleIdx < numSamples; sampleIdx++) {
-      LocalTuple curvePt = new LocalTuple();
       curvePt.setXY(planning.domainArray.get(sampleIdx),
           planning.rangeArray.get(datasetIndex, sampleIdx));
       drawCurvePart(dds, (T) curvePt, methodCallCount++);
