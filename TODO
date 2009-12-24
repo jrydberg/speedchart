@@ -17,3 +17,8 @@
  
  * ChartUiProps should have a "minimum resolution", that sets the
    min width of the domain window.
+
+* Fix visual range for area chart; there is some bug there.
+ 
+ * Calculate interval from final planning?
+
