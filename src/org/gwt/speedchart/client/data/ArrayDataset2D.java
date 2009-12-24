@@ -31,22 +31,12 @@ import org.gwt.speedchart.client.util.Interval;
  */
 public class ArrayDataset2D extends AbstractArrayDataset<Tuple2D> {
 
-  public ArrayDataset2D(double[] domain, double[] range, MipMapStrategy mms,
-      Interval preferredRangeAxisInterval) {
-    super(domain, range, mms, preferredRangeAxisInterval);
-  }
-
   public ArrayDataset2D(double[] domain, double[] range, MipMapStrategy mms) {
-    this(domain, range, mms, null);
-  }
-
-  public ArrayDataset2D(double[] domain, double[] range, 
-      Interval preferredRangeAxisInterval) {
-    this(domain, range, BinaryMipMapStrategy.MEAN, preferredRangeAxisInterval);
+    super(domain, range, mms);
   }
 
   public ArrayDataset2D(double[] domain, double[] range) {
-    this(domain, range, BinaryMipMapStrategy.MEAN, null);
+    this(domain, range, BinaryMipMapStrategy.MEAN);
   }
 
 }

@@ -45,60 +45,27 @@ public abstract class AbstractArrayDataset<T extends Tuple2D>
   protected MipMapChain mipMapChain;
 
   /**
-   * Stores the min/max range values for each tuple coordinate in {@link
-   * #mmRangeTuple}.
-   */
-  protected Interval[] rangeIntervals;
-
-  /**
    * Mip level 0 of the {@link #mipMapChain}.
    */
-  private MipMap rawData;
+  protected MipMap rawData;
 
-  public AbstractArrayDataset(double[] domain, double[] range, MipMapStrategy mms, 
-			      Interval preferredRangeAxisInterval) {
-    super(preferredRangeAxisInterval);
+  public AbstractArrayDataset(double[] domain, double[] range, 
+      MipMapStrategy mms) {
 
     List<double[]> rangeTuples = new ArrayList<double[]>();
     rangeTuples.add(range);
     mipMapChain = mms.mipmap(domain, rangeTuples);
     rawData = mipMapChain.getMipMap(0);
-
-    MinIntervalArrayFunction minIntervalFn = new MinIntervalArrayFunction();
-    rawData.getDomain().execFunction(minIntervalFn);
-    minDomainInterval = minIntervalFn.getMinInterval();
-
-    rangeIntervals = new Interval[mipMapChain.getRangeTupleSize()];
-    ExtremaArrayFunction extremaFn = new ExtremaArrayFunction();
-    for (int i = 0; i < rangeIntervals.length; i++) {
-      Array1D rangeVals = rawData.getRange(i);
-      rangeVals.execFunction(extremaFn);
-      rangeIntervals[i] = extremaFn.getExtrema();
-    }
   }
 
-  public final T getFlyweightTuple(int index) {
-    return (T) rawData.getTuple(index);
-  }
-
-  public Interval getRangeExtrema(int tupleCoordinate) {
-    return rangeIntervals[tupleCoordinate].copy();
+  public Interval getDomainExtrema() {
+    final Array1D domain = rawData.getDomain();
+    this.domainExtrema.setEndpoints(domain.get(0), domain.getLast());
+    return this.domainExtrema;
   }
 
   public MipMapChain getMipMapChain() {
     return this.mipMapChain;
-  }
-
-  public int getNumSamples() {
-    return this.rawData.size();
-  }
-
-  public int getTupleLength() {
-    return 1 + this.mipMapChain.getRangeTupleSize();
-  }
-
-  public double getX(int index) {
-    return this.rawData.getDomain().get(index);
   }
 
   protected MipMapChain createMipMapChain(Array2D mipMappedDomain,

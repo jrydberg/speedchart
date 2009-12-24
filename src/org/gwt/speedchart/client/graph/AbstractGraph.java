@@ -130,7 +130,6 @@ public abstract class AbstractGraph<T extends Tuple2D> extends FocusPanel
       DrawableDataset<T> drawableDataset = dds.get(datasetIdx);
       Dataset<T> dataSet = drawableDataset.dataset;
 
-
       if (!plotDomain.intersects(dataSet.getDomainExtrema())) {
         continue;
       }
@@ -143,7 +142,9 @@ public abstract class AbstractGraph<T extends Tuple2D> extends FocusPanel
           .getBestMipMapForInterval(plotDomain, maxDrawableDataPoints);
 
       MipMap bestMipMap = bestMipMapRegion.getMipMap();
-      if (drawableDataset.currMipMap.getLevel() != bestMipMap.getLevel()) {
+
+      //if (drawableDataset.currMipMap.getLevel() != bestMipMap.getLevel()) {
+      if (drawableDataset.currMipMap != bestMipMap) {
         drawableDataset.currMipMap = bestMipMap;
         //plot.getHoverPoints()[datasetIdx] = DefaultXYPlot.NO_SELECTION;
       }
@@ -151,7 +152,7 @@ public abstract class AbstractGraph<T extends Tuple2D> extends FocusPanel
       int domainStartIdx = bestMipMapRegion.getStartIndex();
       int domainEndIdx = bestMipMapRegion.getEndIndex();
       domainStartIdx = Math.max(0, domainStartIdx - 1);
-      domainEndIdx = Math.min(domainEndIdx, dataSet.getNumSamples() - 1);
+      domainEndIdx = Math.min(domainEndIdx, bestMipMap.size() - 1);
 
       drawableDataset.visDomainStartIndex = domainStartIdx;
       drawableDataset.visDomainEndIndex = domainEndIdx;
@@ -160,7 +161,7 @@ public abstract class AbstractGraph<T extends Tuple2D> extends FocusPanel
 
 
       //RangeAxis rangeAxis = drawableDataset.graphUiProps.getRangeAxis(datasetIdx);
-      Interval visRange = dataSet.getPreferredRangeAxisInterval();
+      Interval visRange = null;
       if (visRange == null) {
 	visRange = calcVisibleRange(bestMipMap, domainStartIdx, domainEndIdx);
       }
@@ -273,8 +274,8 @@ public abstract class AbstractGraph<T extends Tuple2D> extends FocusPanel
     Dataset<T> dataSet = dds.dataset;
     //DatasetRenderer<T> renderer = dds.getRenderer();
 
-    if (dataSet.getNumSamples() < 2) {
-      return;
+    if (dds.currMipMap.size() < 2) {
+	return;
     }
 
     beginCurve(dds);

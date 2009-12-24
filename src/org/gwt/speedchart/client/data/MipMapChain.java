@@ -44,6 +44,11 @@ public class MipMapChain {
   private Array2D mipMappedDomain;
   private Array2D[] mipMappedRangeTuples;
 
+  MipMapChain(List<MipMap> mipMaps, int rangeTupleSize) {
+    this.mipMaps = mipMaps;
+    this.rangeTupleSize = rangeTupleSize;
+  }
+
   public MipMapChain(Array2D mipMappedDomain, List<Array2D> mipMappedRangeTuples) {
     this(mipMappedDomain, mipMappedRangeTuples, null);
   }

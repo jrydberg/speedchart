@@ -54,12 +54,6 @@ import org.gwt.speedchart.client.util.Interval;
 public interface Dataset<T extends Tuple2D> {
 
   /**
-   * Returns the smallest domain interval between any two consecutive points
-   * within the dataset.
-   */
-  double getMinDomainInterval();
-
-  /**
    * Finds the best MipMap (highest resolution) containing the the given region,
    * where the number of points in the region do not exceed <tt>maxSamples<tt>
    * @param region the domain interval used for the search
@@ -75,43 +69,9 @@ public interface Dataset<T extends Tuple2D> {
   MipMapChain getMipMapChain();
 
   /**
-   * Returns an interval representing the min and max values for the specified
-   * range tuple coordinate.
-   */
-  Interval getRangeExtrema(int rangeTupleCoordinate);
-
-  /**
    * Returns an interval that contains the minimum and maximum domain values
    * of this dataset's domain.
    */
   Interval getDomainExtrema();
-  
-  /**
-   * Returns the tuple associated with the specified data point index.
-   */
-  T getFlyweightTuple(int index);
-
-  /**
-   * The min/max range values that {@link RangeAxis} will use as its bounds for computing
-   * the range tick values.  If null, then the actual min/max range values of this dataset
-   * will be used instead.
-   */
-  Interval getPreferredRangeAxisInterval();
-
-  /**
-   * Returns the number of samples in this dataset.
-   */
-  int getNumSamples();
-
-  /**
-   * Returns the fixed number of components that each tuple within this dataset
-   * can hold (e.g. a 2-tuple, 5-tuple, etc.).
-   */
-  int getTupleLength();
-
-  /**
-   * Return the domain value for the given data point index on mip level 0.
-   */
-  double getX(int index);
 
 }

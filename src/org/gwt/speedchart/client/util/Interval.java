@@ -80,7 +80,21 @@ public class Interval {
     Interval i = (Interval)obj;
     return this.start == i.start && this.end == i.end;
   }
+
+  public void intersect(Interval other) {
+    this.start = Math.max(other.getStart(), this.start);
+    this.end = Math.min(other.getEnd(), this.end);
+  }
+
+  public void union(Interval other) {
+    this.start = Math.min(other.getStart(), this.start);
+    this.end = Math.max(other.getEnd(), this.end);
+  }
   
+  public boolean spans(Interval other) {
+    return contains(other.getStart()) && contains(other.getEnd());
+  }
+
   /**
    * Expands this interval so that the specified value is guaranteed fall within
    * it after this method call.  If this interval already contains <tt>value</tt>,

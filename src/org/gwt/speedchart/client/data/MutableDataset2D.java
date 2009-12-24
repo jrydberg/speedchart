@@ -44,19 +44,13 @@ public class MutableDataset2D extends ArrayDataset2D implements MutableDataset<T
   private MipMapStrategy mipMapStrategy;
   private List<DatasetListener<Tuple2D>> listeners = new ArrayList<DatasetListener<Tuple2D>>();
 
-  public MutableDataset2D(double[] domain, double[] range, MipMapStrategy mms,
-      Interval preferredRangeAxisInterval) {
-    super(domain, range, mms, preferredRangeAxisInterval);
+  public MutableDataset2D(double[] domain, double[] range, MipMapStrategy mms) {
+    super(domain, range, mms);
     mipMapStrategy = mms;
   }
 
-  public MutableDataset2D(double[] domain, double[] range, MipMapStrategy mms) {
-    this(domain, range, mms, null);
-  }
-
-  public MutableDataset2D(double[] domain, double[] range, 
-      Interval preferredRangeAxisInterval) {
-    this(domain, range, BinaryMipMapStrategy.MEAN, preferredRangeAxisInterval);
+  public MutableDataset2D(double[] domain, double[] range) {
+    this(domain, range, BinaryMipMapStrategy.MEAN);
   }
 
   public void addListener(DatasetListener<Tuple2D> listener) {
@@ -77,9 +71,7 @@ public class MutableDataset2D extends ArrayDataset2D implements MutableDataset<T
       AppendMutation m = (Mutation.AppendMutation) mutation;
       newY = m.getY();
       newX = m.getX();
-      double newInterval = newX - getX(getNumSamples() - 1);
-      this.minDomainInterval = Math.min(
-          this.minDomainInterval, newInterval);
+      double newInterval = newX - rawData.getDomain().getLast();
       appendXY(newX, newY);
     } 
     else if (mutation instanceof Mutation.RangeMutation) {
@@ -87,7 +79,7 @@ public class MutableDataset2D extends ArrayDataset2D implements MutableDataset<T
       newY = m.getY();
       mipMapStrategy.setRangeValue(m.getPointIndex(), newY,
           mipMapChain.getMipMappedRangeTuples()[0]);
-      newX = this.getX(m.getPointIndex());
+      newX = rawData.getDomain().get(m.getPointIndex());
     } 
     else {
       // TODO: Can add more mutation handlers later
@@ -95,10 +87,6 @@ public class MutableDataset2D extends ArrayDataset2D implements MutableDataset<T
           + mutation.getClass().getName() + " currently not supported");
     }
     
-    //TODO: mutations currently only work for 2-tuples.  Need to add mutation support
-    // for  n-tuples.
-    rangeIntervals[0].expand(newY);
-
     notifyListeners(this, newX, newX);
   }
 

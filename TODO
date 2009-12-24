@@ -3,16 +3,17 @@
 
 * rewrite and simplify the domain axis
 
-* implement a simple range axis
- 
+* rewrite and simplify the range axis
+
  * should we have the values inside the graph like chronoscope
    does?
 
 * get rid of Tuple2D and introduce a DataPoint class that
   has a domain and a single range value.
 
+* get rid of the "multiple range tuples" in datasets.
  
 * Timeline Model:
  
- * CrahUiProps should have a "minimum resolution", that sets the
+ * ChartUiProps should have a "minimum resolution", that sets the
    min width of the domain window.

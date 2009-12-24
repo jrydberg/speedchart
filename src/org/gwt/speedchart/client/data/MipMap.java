@@ -47,6 +47,19 @@ public class MipMap {
   
   MipMap nextMipMap;
   
+  public MipMap(Array1D domain, Array1D rangeTuple) {
+    ArgChecker.isNotNull(domain, "domain");
+    ArgChecker.isNotNull(rangeTuple, "rangeTuple");
+
+    Array1D[] rangeTuples = new Array1D[1];
+    rangeTuples[0] = rangeTuple;
+
+    this.mipLevel = 0;
+    this.domain = domain;
+    this.rangeTuples = rangeTuples;
+    this.flyweightTuple = new FlyweightTuple(this.domain, this.rangeTuples);
+  }
+
   public MipMap(Array1D domain, Array1D[] rangeTuples) {
     ArgChecker.isNotNull(domain, "domain");
     ArgChecker.isNotNull(rangeTuples, "rangeTuples");

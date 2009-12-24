@@ -36,22 +36,7 @@ public abstract class AbstractDataset<T extends Tuple2D> implements Dataset<T> {
 
   protected double minDomainInterval;
 
-  protected Interval preferredRangeAxisInterval;
-
-  private Interval domainExtrema = new Interval(0.0, 0.0);
-
-  protected AbstractDataset(Interval preferredRangeAxisInterval) {
-    this.preferredRangeAxisInterval = preferredRangeAxisInterval;
-  }
-
-  public final Interval getDomainExtrema() {
-    this.domainExtrema.setEndpoints(getX(0), getX(getNumSamples() - 1));
-    return this.domainExtrema;
-  }
-
-  public final double getMinDomainInterval() {
-    return minDomainInterval;
-  }
+  protected Interval domainExtrema = new Interval(0.0, 0.0);
 
   public MipMapRegion getBestMipMapForInterval(Interval region, int maxSamples) {
     int domainStartIdx = 0;
@@ -68,10 +53,6 @@ public abstract class AbstractDataset<T extends Tuple2D> implements Dataset<T> {
       bestMipMap = bestMipMap.next();
     }
     return new MipMapRegion(bestMipMap, domainStartIdx, domainEndIdx);
-  }
-
-  public final Interval getPreferredRangeAxisInterval() {
-    return preferredRangeAxisInterval;
   }
 
 }

@@ -12,6 +12,11 @@ public final class JavaArray1D implements MutableArray1D {
     backingArray = new double[1];
   }
 
+  public JavaArray1D(double[] backingArray) {
+    this.backingArray = backingArray;
+    size = backingArray.length;
+  }
+
   private static int newCapacity(int currLength, int requestedIndex) {
     double newLength = (double) Math.max(currLength, 1);
     while ((double) requestedIndex >= newLength) {
