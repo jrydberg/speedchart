@@ -7,10 +7,16 @@ import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.InlineLabel;
 import com.google.gwt.graphics.client.Color;
 import org.gwt.speedchart.client.data.MutableDataset2D;
 import org.gwt.speedchart.client.data.BinaryMipMapStrategy;
 import org.gwt.speedchart.client.data.Mutation;
+import org.gwt.speedchart.client.data.MipMap;
+import org.gwt.speedchart.client.util.Array1D;
+import org.gwt.speedchart.client.util.SumArrayFunction;
+import org.gwt.speedchart.client.util.Util;
+import org.gwt.speedchart.client.graph.TimelineModel;
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.ui.TabLayoutPanel;
 import com.google.gwt.user.client.ui.LayoutPanel;
@@ -148,12 +154,30 @@ public class SpeedChartSample implements EntryPoint {
     GraphUiProps dsUiProps = new GraphUiProps(Color.BLUE,
         Color.BLACK, 0);
 
+    final Dataset ds = getTimeseriesDataset();
+
     SparklineChart chart = new SparklineChart();
-    chart.addDataset(getTimeseriesDataset(), dsUiProps);
+    chart.addDataset(ds, dsUiProps);
     Log.info("domain: start: " + chart.getTimelineModel().getLeftBound()
 	     + "; end: " + chart.getTimelineModel().getRightBound());
     //chart.setDomainWidth(30 * 24 * 60 * 1000);
     chart.zoomAll();
+
+    final InlineLabel countLabel = new InlineLabel();
+
+    chart.getTimelineModel().addWindowBoundsObserver(
+      new TimelineModel.WindowBoundsObserver() {
+	public void onWindowBoundsChange(double left,
+            double right) {
+	  MipMap mipMap = ds.getMipMapChain().getMipMap(0);
+	  Array1D domain = mipMap.getDomain();
+	  SumArrayFunction sumFn = new SumArrayFunction(
+              Util.binarySearch(domain, left), 
+	      Util.binarySearch(domain, right));
+	  mipMap.getRange(0).execFunction(sumFn);
+	  countLabel.setText("Count: " + sumFn.getSum());
+	}
+      });
     
     Button button1 = new Button("Month");
     button1.addClickHandler(new DomainWidthClickHandler(
@@ -176,6 +200,10 @@ public class SpeedChartSample implements EntryPoint {
     panel.add(buttonPanel);
     panel.setWidgetTopHeight(buttonPanel, 0, Unit.PX, 50, Unit.PX);
     panel.setWidgetLeftRight(buttonPanel, 40, Unit.PCT, 40, Unit.PCT);
+
+    panel.add(countLabel);
+    panel.setWidgetTopHeight(countLabel, 50, Unit.PX, 50, Unit.PX);
+    panel.setWidgetLeftRight(countLabel, 40, Unit.PCT, 40, Unit.PCT);
 
     panel.add(chart);
     panel.setWidgetTopHeight(chart, 100, Unit.PX, 50, Unit.PX);
