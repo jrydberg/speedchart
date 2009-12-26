@@ -80,18 +80,30 @@ public class SpeedChart extends AbstractChart {
     this(new TimelineModel(false, true));
   }
 
-  public SpeedChart(TimelineModel timelineModel) {
-    this((Resources) GWT.create(Resources.class), timelineModel);
+  public SpeedChart(ChartUiProps chartUiProps) {
+    this((Resources) GWT.create(Resources.class), 
+        new TimelineModel(false, true), chartUiProps);
   }
 
-  public SpeedChart(Resources resources, TimelineModel timelineModel) {
+  public SpeedChart(TimelineModel timelineModel) {
+    this((Resources) GWT.create(Resources.class), timelineModel, null);
+  }
+
+  public SpeedChart(Resources resources, TimelineModel timelineModel,
+      ChartUiProps chartUiProps) {
     super(timelineModel);
+    
+    if (chartUiProps == null) {
+      chartUiProps = new ChartUiProps();
+      chartUiProps.setDrawBorders(true);
+    }
+
     this.resources = resources;
     setStyleName(resources.speedGraphCss().graphBase());
 
     this.zoom = new Zoom(getTimelineModel());
 
-    lineGraph = new LineGraph(1000, 400);
+    lineGraph = new LineGraph(chartUiProps);
     lineGraph.setStyleName(resources.speedGraphCss().mainGraph());
     zoom.addListener(lineGraph);
 

@@ -21,30 +21,20 @@ import com.google.gwt.graphics.client.Color;
  * Properties object for look and feel of a graph.
  */
 public class GraphUiProps {
-  private double activeMaxYAxisValue;
   private final Color graphColor;
   
   private final Color strokeColor;
-  // This is needed to render the graph correctly.
-  // So by my book that qualifies it as a UI property.
-  private final double yAxisScaleCap;
   
   public GraphUiProps(Color graphColor, Color strokeColor,
       double yAxisScaleCap) {
     this.graphColor = graphColor;
     this.strokeColor = strokeColor;
-    this.yAxisScaleCap = yAxisScaleCap;
-    this.setActiveMaxYAxisValue(yAxisScaleCap);
   }
 
   public boolean isAutoZoomVisibleRange() {
     return true;
   }
 
-  public double getActiveMaxYAxisValue() {
-    return activeMaxYAxisValue;
-  }
-  
   public Color getGraphColor() {
     return graphColor;
   }
@@ -52,17 +42,5 @@ public class GraphUiProps {
   public Color getStrokeColor() {
     return strokeColor;
   }
-  
-  /**
-   * This is the default max Y axis value used to scale and render the graph.
-   * 
-   * @return
-   */
-  public double getYAxisScaleCap() {
-    return yAxisScaleCap;
-  }
 
-  public void setActiveMaxYAxisValue(double activeMaxYAxisValue) {
-    this.activeMaxYAxisValue = activeMaxYAxisValue;
-  }
 }

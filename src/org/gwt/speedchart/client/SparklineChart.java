@@ -65,22 +65,28 @@ public class SparklineChart extends AbstractChart {
   }
 
   public SparklineChart(TimelineModel timelineModel) {
-    this((Resources) GWT.create(Resources.class), timelineModel);
+    this((Resources) GWT.create(Resources.class), timelineModel, null);
   }
 
   public SparklineChart(Resources resources) {
-    this(resources, new TimelineModel(true, false));
+    this(resources, new TimelineModel(true, false), null);
   }
 
   public SparklineChart(Resources resources, 
-      TimelineModel timelineModel) {
+      TimelineModel timelineModel, ChartUiProps chartUiProps) {
     super(timelineModel);
+
+    if (chartUiProps == null) {
+      chartUiProps = new ChartUiProps();
+      chartUiProps.setDrawBorders(false);
+    }
+
     this.resources = resources;
     setStyleName(resources.sparklineCss().sparkline());
     
     // Create the line graph with any size what-so-ever since it will
     // be re-sized anyway.
-    lineGraph = new LineGraph(100, 40);
+    lineGraph = new LineGraph(chartUiProps);
 
     // Add zoom that we use for transitions, but do not add the graph
     // as listener since we do want to transition with full graphics.

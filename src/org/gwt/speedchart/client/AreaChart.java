@@ -81,17 +81,24 @@ public class AreaChart extends AbstractChart {
   }
 
   public AreaChart(TimelineModel timelineModel) {
-    this((Resources) GWT.create(Resources.class), timelineModel);
+    this((Resources) GWT.create(Resources.class), timelineModel, null);
   }
 
-  public AreaChart(Resources resources, TimelineModel timelineModel) {
+  public AreaChart(Resources resources, TimelineModel timelineModel,
+      ChartUiProps chartUiProps) {
     super(timelineModel);
+
+    if (chartUiProps == null) {
+      chartUiProps = new ChartUiProps();
+      chartUiProps.setDrawBorders(true);
+    }
+
     this.resources = resources;
     setStyleName(resources.areaGraphCss().graphBase());
 
     this.zoom = new Zoom(getTimelineModel());
 
-    areaGraph = new AreaGraph();
+    areaGraph = new AreaGraph(chartUiProps);
     areaGraph.setStyleName(resources.areaGraphCss().mainGraph());
     zoom.addListener(areaGraph);
 

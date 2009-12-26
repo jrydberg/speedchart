@@ -28,6 +28,7 @@ import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.RequiresResize;
 
 import org.gwt.speedchart.client.GraphUiProps;
+import org.gwt.speedchart.client.ChartUiProps;
 import org.gwt.speedchart.client.Dataset;
 import org.gwt.speedchart.client.Overlay;
 import org.gwt.speedchart.client.fx.AnimationListener;
@@ -78,7 +79,11 @@ public abstract class AbstractGraph<T extends Tuple2D> extends FocusPanel
 
   protected final Canvas canvas;
 
-  protected AbstractGraph(int width, int height) {
+  protected final ChartUiProps chartUiProps;
+
+  protected AbstractGraph(int width, int height, 
+      ChartUiProps chartUiProps) {
+    this.chartUiProps = chartUiProps;
     COORD_X_WIDTH = width;
     COORD_Y_HEIGHT = height;
     Log.info("create canvas");
@@ -86,8 +91,8 @@ public abstract class AbstractGraph<T extends Tuple2D> extends FocusPanel
     setElement(canvas.getElement());
   }
 
-  protected AbstractGraph() {
-    this(1000, 400);
+  protected AbstractGraph(ChartUiProps chartUiProps) {
+    this(1000, 400, chartUiProps);
   }
 
   protected Interval visRange;
@@ -124,10 +129,7 @@ public abstract class AbstractGraph<T extends Tuple2D> extends FocusPanel
     Element parentElem = getElement().getParentElement();
     final int clientWidth = parentElem.getClientWidth();
     final int clientHeight = parentElem.getClientHeight();
-
-    Log.info("onResize: " + parentElem.getOffsetWidth()
-	     + " height:" + parentElem.getOffsetHeight());
-    setSize(clientWidth - 1, clientHeight - 1);
+    setSize(clientWidth, clientHeight);
   }
 
   private void calcVisibleDomainAndRange(List<DrawableDataset<T>> dds,
@@ -206,8 +208,19 @@ public abstract class AbstractGraph<T extends Tuple2D> extends FocusPanel
       }
     }
 
-    if (visRange != null)
-      Log.info("visible range is from " + visRange.getStart() + " to " + visRange.getEnd());
+    Interval fixVisibleRange = chartUiProps.getVisibleRangeInterval();
+    if (fixVisibleRange != null && visRange != null) {
+      if (!chartUiProps.isAutoZoomRangeTop()) {
+	this.visRange.setEndpoints(this.visRange.getStart(),
+	    fixVisibleRange.getEnd());
+      }
+
+      if (!chartUiProps.isAutoZoomRangeBottom()) {
+	this.visRange.setEndpoints(fixVisibleRange.getStart(),
+	    this.visRange.getEnd());
+      }
+    }
+
   }
 
   private double lx, ly, fx;
@@ -232,6 +245,12 @@ public abstract class AbstractGraph<T extends Tuple2D> extends FocusPanel
 
   protected void beginDrawing() {
     canvas.clear();
+
+    if (chartUiProps.isDrawBorders()) {
+      canvas.setFillStyle(Color.BLACK);
+      canvas.fillRect(0, COORD_Y_HEIGHT - 1, COORD_X_WIDTH - 1, 1);
+      canvas.fillRect(0, 0, 1, COORD_Y_HEIGHT - 1);
+    }
   }
 
   protected void beginCurve(DrawableDataset<T> dds) {

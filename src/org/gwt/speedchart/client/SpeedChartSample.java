@@ -286,7 +286,11 @@ public class SpeedChartSample implements EntryPoint {
     OverlayUiProps overlayUiProps1 = new OverlayUiProps(Color.GREEN);
     OverlayUiProps overlayUiProps2 = new OverlayUiProps(Color.ORANGE);
 
-    final SpeedChart chart = new SpeedChart();
+    final ChartUiProps chartUiProps = new ChartUiProps();
+    chartUiProps.setDrawBorders(true);
+    chartUiProps.setVisibleRangeInterval(new Interval(-200.0, 2200.0));
+
+    final SpeedChart chart = new SpeedChart(chartUiProps);
     chart.addDataset(getBasicDataset(), dsUiProps1);
     chart.zoomAll();
 

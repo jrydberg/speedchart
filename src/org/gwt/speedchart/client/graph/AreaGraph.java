@@ -6,6 +6,7 @@ import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.RequiresResize;
 
+import org.gwt.speedchart.client.ChartUiProps;
 import org.gwt.speedchart.client.GraphUiProps;
 import org.gwt.speedchart.client.Dataset;
 import org.gwt.speedchart.client.fx.AnimationListener;
@@ -129,8 +130,8 @@ public class AreaGraph<T extends Tuple2D>
     public Array2D rangeArray = new JavaArray2D();
   }
 
-  public AreaGraph() {
-    super(1000, 500);
+  public AreaGraph(ChartUiProps chartUiProps) {
+    super(chartUiProps);
   }
   
   private Planning planDraw(List<DrawableDataset<T>> dds,
