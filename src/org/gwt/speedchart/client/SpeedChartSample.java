@@ -16,6 +16,7 @@ import org.gwt.speedchart.client.data.MipMap;
 import org.gwt.speedchart.client.util.Array1D;
 import org.gwt.speedchart.client.util.SumArrayFunction;
 import org.gwt.speedchart.client.util.Util;
+import org.gwt.speedchart.client.util.Interval;
 import org.gwt.speedchart.client.graph.TimelineModel;
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.ui.TabLayoutPanel;
@@ -260,6 +261,7 @@ public class SpeedChartSample implements EntryPoint {
     chart.zoomAll();
     
     chart.getTimelineModel().setStreaming(true);
+    chart.getTimelineModel().toggleFixBounds();
 
     Timer t = new Timer() {
 	public void run() {
@@ -277,6 +279,29 @@ public class SpeedChartSample implements EntryPoint {
     return panel;
   }
 
+  public Widget createOverlayExample() {
+
+    GraphUiProps dsUiProps1 = new GraphUiProps(Color.BLUE,
+        Color.BLACK, 0);
+    OverlayUiProps overlayUiProps1 = new OverlayUiProps(Color.GREEN);
+    OverlayUiProps overlayUiProps2 = new OverlayUiProps(Color.ORANGE);
+
+    final SpeedChart chart = new SpeedChart();
+    chart.addDataset(getBasicDataset(), dsUiProps1);
+    chart.zoomAll();
+
+    chart.addRangeOverlay(new RangeOverlay(1500.0, overlayUiProps1));
+    chart.addDomainOverlay(new DomainOverlay(
+        new Interval(5 * (60 * 60 * 24), 200 * (60 * 60 * 24)),
+	overlayUiProps2));
+    
+    final LayoutPanel panel = new LayoutPanel();
+    panel.add(chart);
+    panel.setWidgetTopHeight(chart, 50, Unit.PX, 50, Unit.PCT);
+    panel.setWidgetLeftRight(chart, 20, Unit.PCT, 20, Unit.PCT);
+    return panel;
+  }
+
   /**
    * This is the entry point method.
    */
@@ -287,6 +312,7 @@ public class SpeedChartSample implements EntryPoint {
     tabPanel.add(createSparklineExample(), "Sparklines");
     tabPanel.add(createAreaChartExample(), "AreaChart");
     tabPanel.add(createStreamingExample(), "Steaming");
+    tabPanel.add(createOverlayExample(), "Overlay");
 
     RootLayoutPanel.get().add(tabPanel);
 

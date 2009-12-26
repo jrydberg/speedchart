@@ -29,6 +29,7 @@ import com.google.gwt.user.client.ui.RequiresResize;
 
 import org.gwt.speedchart.client.GraphUiProps;
 import org.gwt.speedchart.client.Dataset;
+import org.gwt.speedchart.client.Overlay;
 import org.gwt.speedchart.client.fx.AnimationListener;
 //import org.gwt.speedchart.client.Datasets;
 //import org.gwt.speedchart.client.Focus;
@@ -69,6 +70,12 @@ public abstract class AbstractGraph<T extends Tuple2D> extends FocusPanel
   protected final List<DrawableDataset<T>> drawableDatasets =
       new ArrayList<DrawableDataset<T>>();
   
+  protected List<Overlay> rangeOverlays =
+      new ArrayList<Overlay>();
+
+  protected List<Overlay> domainOverlays =
+      new ArrayList<Overlay>();
+
   protected final Canvas canvas;
 
   protected AbstractGraph(int width, int height) {
@@ -96,6 +103,14 @@ public abstract class AbstractGraph<T extends Tuple2D> extends FocusPanel
 
   public Interval getVisRange() {
     return visRange;
+  }
+
+  public void addDomainOverlay(Overlay domainOverlay) {
+    domainOverlays.add(domainOverlay);
+  }
+
+  public void addRangeOverlay(Overlay rangeOverlay) {
+    rangeOverlays.add(rangeOverlay);
   }
 
   public void setSize(int coordWidth, int coordHeight) {
@@ -181,6 +196,14 @@ public abstract class AbstractGraph<T extends Tuple2D> extends FocusPanel
 //       }
       
 //       rangeAxis.adjustVisibleRange(visRange);
+    }
+
+    for (Overlay rangeOverlay : rangeOverlays) {
+      if (this.visRange == null) {
+	this.visRange = rangeOverlay.getInterval();
+      } else {
+	this.visRange.expand(rangeOverlay.getInterval());
+      }
     }
 
     if (visRange != null)
@@ -329,6 +352,34 @@ public abstract class AbstractGraph<T extends Tuple2D> extends FocusPanel
     return widestPlotDomain;
   }
 
+  public void drawOverlays() {
+
+    canvas.setGlobalAlpha(0.8);
+
+    for (Overlay rangeOverlay : rangeOverlays) {
+      Interval rangeInterval = rangeOverlay.getInterval();
+      double startY = rangeToScreenY(rangeInterval.getStart());
+      double height = Math.max(rangeToScreenY(rangeInterval.getEnd())
+          - startY, 1);
+      canvas.setFillStyle(rangeOverlay.getUiProps().getColor());
+      canvas.fillRect(0, startY, COORD_X_WIDTH, height);
+    }
+
+    for (Overlay domainOverlay : domainOverlays) {
+      Interval domainInterval = domainOverlay.getInterval();
+      if (!domainInterval.intersects(visDomain))
+	continue;
+
+      double startX = domainToScreenX(domainInterval.getStart());
+      double width = domainToScreenX(domainInterval.getEnd())
+	- startX;
+      width = Math.max(width, 1);
+      canvas.setFillStyle(domainOverlay.getUiProps().getColor());
+      canvas.fillRect(startX, 0, width, COORD_Y_HEIGHT);
+    }
+
+  }
+
   /**
    * Subclasses can override this method to return a domain span that's larger
    * than the maximum according to current mipmapped domain associated with the
@@ -359,6 +410,7 @@ public abstract class AbstractGraph<T extends Tuple2D> extends FocusPanel
     //	     + ", " + visDomain.getEnd());
 
     beginDrawing();
+    drawOverlays();
 
     final int numDatasets = drawableDatasets.size();
     for (int i = 0; i < numDatasets; i++) {
@@ -436,7 +488,15 @@ public abstract class AbstractGraph<T extends Tuple2D> extends FocusPanel
     final int refYIndex = guip.isAutoZoomVisibleRange() ? dds.visDomainStartIndex : 0;
     return dds.currMipMap.getTuple(refYIndex).getRange0();
   }
-  
+
+  public void removeDomainOverlay(Overlay domainOverlay) {
+    domainOverlays.remove(domainOverlay);
+  }
+
+  public void removeRangeOverlay(Overlay rangeOverlay) {
+    rangeOverlays.remove(rangeOverlay);
+  }
+
   private static final class LocalTuple implements Tuple2D {
     private double x, y;
     

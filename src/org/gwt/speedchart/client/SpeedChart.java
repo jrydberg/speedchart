@@ -159,6 +159,14 @@ public class SpeedChart extends AbstractChart {
     super.addDataset(ds, graphUiProps);
   }
 
+  public void addDomainOverlay(Overlay overlay) {
+    lineGraph.addDomainOverlay(overlay);
+  }
+
+  public void addRangeOverlay(Overlay overlay) {
+    lineGraph.addRangeOverlay(overlay);
+  }
+
   @Override
   public void redraw() {
     Interval domain = getDomain();
@@ -173,6 +181,14 @@ public class SpeedChart extends AbstractChart {
   public boolean removeDataset(Dataset ds) {
     lineGraph.removeDataset(ds);
     return super.removeDataset(ds);
+  }
+
+  public void removeDomainOverlay(Overlay overlay) {
+    lineGraph.removeDomainOverlay(overlay);
+  }
+
+  public void removeRangeOverlay(Overlay overlay) {
+    lineGraph.removeRangeOverlay(overlay);
   }
 
 }
