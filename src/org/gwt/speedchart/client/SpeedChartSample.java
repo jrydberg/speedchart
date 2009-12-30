@@ -482,7 +482,7 @@ public class SpeedChartSample implements EntryPoint {
     panel.setWidgetLeftRight(chart, 20, Unit.PCT, 20, Unit.PCT);
 
     InlineLabel doc = new InlineLabel(
-        "The graph above loads does on-demand loading of its data, "
+        "The graph above does on-demand loading of its data "
         + "with a simulated 1.5 second delay. "
         + "Resolutions are hour, minute and second.");
 
