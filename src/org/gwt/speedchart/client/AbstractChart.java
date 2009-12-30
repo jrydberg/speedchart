@@ -5,6 +5,7 @@ import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.RequiresResize;
 import org.gwt.speedchart.client.data.MutableDataset2D;
+import org.gwt.speedchart.client.data.ZoomDataset2D;
 import org.gwt.speedchart.client.graph.LineGraph;
 import org.gwt.speedchart.client.graph.TimelineModel.WindowBoundsObserver;
 import org.gwt.speedchart.client.graph.TimelineModel;
@@ -43,6 +44,8 @@ public abstract class AbstractChart extends LayoutPanel implements RequiresResiz
 
     if (ds instanceof MutableDataset2D) {
       ((MutableDataset2D) ds).addListener(timelineModel);
+    } else if (ds instanceof ZoomDataset2D) {
+      ((ZoomDataset2D) ds).addListener(timelineModel);
     }
   }
 
@@ -86,7 +89,7 @@ public abstract class AbstractChart extends LayoutPanel implements RequiresResiz
   @Override
   public void onResize() {
     super.onResize();
-    if (datasets.size() != 0)
+    if (datasets != null && datasets.size() != 0)
       redraw();
   }
 

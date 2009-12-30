@@ -86,7 +86,6 @@ public abstract class AbstractGraph<T extends Tuple2D> extends FocusPanel
     this.chartUiProps = chartUiProps;
     COORD_X_WIDTH = width;
     COORD_Y_HEIGHT = height;
-    Log.info("create canvas");
     canvas = new Canvas(COORD_X_WIDTH, COORD_Y_HEIGHT);
     setElement(canvas.getElement());
   }
@@ -267,11 +266,8 @@ public abstract class AbstractGraph<T extends Tuple2D> extends FocusPanel
       ly = uy;
     } else {
       if (methodCallCount == 1) {
-	//Log.info("move to: " + lx + "," + ly);
 	canvas.moveTo(lx, ly);
       }
-
-      //Log.info("line to: " + ux + "," + uy);
       canvas.lineTo(ux, uy);
 
       lx = ux;
@@ -320,17 +316,18 @@ public abstract class AbstractGraph<T extends Tuple2D> extends FocusPanel
 	return;
     }
 
-    beginCurve(dds);
 
     MipMap currMipMap = dds.currMipMap;
     final int domainStartIdx = dds.visDomainStartIndex;
     final int domainEndIdx = dds.visDomainEndIndex;
     //RangeAxis rangeAxis = dds.graphUiProps.getRangeAxis(datasetIndex);
     //final boolean calcRangeAsPercent = rangeAxis.isCalcRangeAsPercent();
+
+    beginCurve(dds);
     
     // Render the curve
     // final double refY = calcReferenceY(dds.graphUiProps, dds);
-    
+
     int methodCallCount = 0;
     Iterator<Tuple2D> tupleItr = currMipMap.getTupleIterator(domainStartIdx);
     for (int i = domainStartIdx; i <= domainEndIdx; i++) {

@@ -32,7 +32,7 @@ package org.gwt.speedchart.client.util;
  * 
  * @author chad takahashi
  */
-public class Interval {
+public class Interval implements Comparable<Interval> {
   private double start, end;
   
   public Interval(double start, double end) {
@@ -46,6 +46,11 @@ public class Interval {
    */
   public boolean contains(double value) {
     return value >= start && value <= end; 
+  }
+
+  public boolean contains(Interval other) {
+    return contains(other.getStart()) 
+        && contains(other.getEnd());
   }
 
   /**
@@ -72,6 +77,15 @@ public class Interval {
     target.end = this.end;
   }
   
+  public int compareTo(Interval other) {
+    if (equals(other))
+      return 0;
+    else if (comesBefore(other))
+      return -1;
+    else
+      return 1;
+  }
+
   public boolean equals(Object obj) {
     if (!(obj instanceof Interval)) {
       return false;
@@ -79,6 +93,20 @@ public class Interval {
     
     Interval i = (Interval)obj;
     return this.start == i.start && this.end == i.end;
+  }
+
+  public boolean comesBefore(Interval other) {
+    return getStart() < other.getStart();
+  }
+
+  public boolean adjacentTo(Interval other) {
+    if (comesBefore(other)) {
+      return getEnd() == other.getStart();
+    } else if (equals(other)) {
+      return false;
+    } else {
+      return other.adjacentTo(this);
+    }
   }
 
   public void intersect(Interval other) {
@@ -90,7 +118,30 @@ public class Interval {
     this.start = Math.min(other.getStart(), this.start);
     this.end = Math.max(other.getEnd(), this.end);
   }
+
+  public Interval join(Interval other) {
+
+    if (!overlaps(other) && !adjacentTo(other)) {
+      throw new IllegalArgumentException("the Intervals are disjoint");
+    }
+
+    return new Interval(Math.min(getStart(), other.getStart()),
+        Math.max(getEnd(), other.getEnd()));
+  }
   
+  public boolean overlaps(Interval other) {
+    if (equals(other))
+      return true;
+    else if (other.comesBefore(this))
+      return other.overlaps(this);
+    else if (other.getStart() < getEnd())
+      return true;
+    else if (other.getStart() == getEnd())
+      return true;
+    else
+      return false;
+  }
+
   public boolean spans(Interval other) {
     return contains(other.getStart()) && contains(other.getEnd());
   }

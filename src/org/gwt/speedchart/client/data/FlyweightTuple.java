@@ -45,6 +45,10 @@ public final class FlyweightTuple implements Tuple5D {
       rangeTupleData[i] = rangeTuples[i].backingArray();
     }
   }
+
+  public String toString() {
+    return "(" + getDomain() + "," + getRange0() + ")";
+  }
   
   public double getRange(int rangeTupleIndex) {
     return rangeTupleData[rangeTupleIndex][this.dataPointIndex];

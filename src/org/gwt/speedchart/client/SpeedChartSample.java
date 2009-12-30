@@ -3,16 +3,22 @@ package org.gwt.speedchart.client;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.InlineLabel;
 import com.google.gwt.graphics.client.Color;
+import org.gwt.speedchart.client.data.ArrayDataset2D;
 import org.gwt.speedchart.client.data.MutableDataset2D;
 import org.gwt.speedchart.client.data.BinaryMipMapStrategy;
 import org.gwt.speedchart.client.data.Mutation;
 import org.gwt.speedchart.client.data.MipMap;
+import org.gwt.speedchart.client.data.ZoomDataset2D;
+import org.gwt.speedchart.client.data.ZoomDataset2D.DatasetModel;
+import org.gwt.speedchart.client.data.ZoomDataset2D.Request;
+import org.gwt.speedchart.client.data.ZoomDataset2D.Callback;
 import org.gwt.speedchart.client.util.Array1D;
 import org.gwt.speedchart.client.util.SumArrayFunction;
 import org.gwt.speedchart.client.util.Util;
@@ -24,6 +30,7 @@ import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.dom.client.Style.Unit;
 
+import org.gwt.speedchart.client.util.Interval;
 import org.gwt.speedchart.client.util.TimeUnit;
 
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -38,6 +45,19 @@ import java.util.Date;
  * Entry point classes define <code>onModuleLoad()</code>.
  */
 public class SpeedChartSample implements EntryPoint {
+
+  private void timeIt(InlineLabel label, Command command) {
+    Date s1 = new Date();
+    command.execute();
+    Date s2 = new Date();
+    label.setText("Operation took: " + (s2.getTime() - s1.getTime())
+        + "ms");
+  }
+
+  public Dataset getZoomDataset(DatasetModel model) {
+    return new ZoomDataset2D(model, new Interval(0, 
+        24 * 60 * 60 * 1000));
+  }
 
   public Dataset getBasicDataset() {
     int numSamples = 1000;
@@ -133,6 +153,27 @@ public class SpeedChartSample implements EntryPoint {
   }
 
 
+  public Dataset getLargeDataset(final int numSamples) {
+    double[] domainValues = new double[numSamples];
+    double[] rangeValues = new double[numSamples];
+
+    double span = 200;
+    double initial = 2000;
+    double d = 0;
+    
+    for (int i = 0; i < numSamples; i++) {
+      double ry = initial + ((Random.nextDouble() - 0.5) * 200);
+      domainValues[i] = d;
+      rangeValues[i] = ry;
+      initial = ry;
+      d += 1000;
+    }
+
+    return new ArrayDataset2D(domainValues, rangeValues,
+        BinaryMipMapStrategy.MEAN);
+  }
+
+
   private static final class DomainWidthClickHandler 
       implements ClickHandler {
 
@@ -211,6 +252,82 @@ public class SpeedChartSample implements EntryPoint {
     panel.setWidgetLeftRight(chart, 20, Unit.PCT, 20, Unit.PCT);
     return panel;
   }
+
+  private Dataset largeDataset;
+
+  public Widget createLargeExample() {
+    final GraphUiProps dsUiProps = new GraphUiProps(Color.BLUE,
+        Color.BLACK, 0);
+    final SpeedChart chart = new SpeedChart();
+
+    final InlineLabel countLabel = new InlineLabel();
+
+    Button button1 = new Button("Small");
+    button1.addClickHandler(new ClickHandler() {
+	public void onClick(ClickEvent event) {
+	  if (largeDataset != null) {
+	    chart.removeDataset(largeDataset);
+	  }
+	  timeIt(countLabel, new Command() {
+	      public void execute() {
+		largeDataset = getLargeDataset(40000);
+		chart.addDataset(largeDataset, dsUiProps);
+	      }
+	    });
+	}
+      });
+
+    Button button2 = new Button("Large");
+    button2.addClickHandler(new ClickHandler() {
+	public void onClick(ClickEvent event) {
+	  if (largeDataset != null) {
+	    chart.removeDataset(largeDataset);
+	  }
+	  timeIt(countLabel, new Command() {
+	      public void execute() {
+		largeDataset = getLargeDataset(100000);
+		chart.addDataset(largeDataset, dsUiProps);
+	      }
+	    });
+	}
+      });
+
+    Button button3 = new Button("Huge");
+    button3.addClickHandler(new ClickHandler() {
+	public void onClick(ClickEvent event) {
+	  if (largeDataset != null) {
+	    chart.removeDataset(largeDataset);
+	  }
+	  timeIt(countLabel, new Command() {
+	      public void execute() {
+		largeDataset = getLargeDataset(400000);
+		chart.addDataset(largeDataset, dsUiProps);
+	      }
+	    });
+	}
+      });
+    
+    HorizontalPanel buttonPanel = new HorizontalPanel();
+    buttonPanel.add(button1);
+    buttonPanel.add(button2);
+    buttonPanel.add(button3);
+
+    final LayoutPanel panel = new LayoutPanel();
+    panel.add(buttonPanel);
+    panel.setWidgetTopHeight(buttonPanel, 0, Unit.PX, 50, Unit.PX);
+    panel.setWidgetLeftRight(buttonPanel, 40, Unit.PCT, 40, Unit.PCT);
+
+    panel.add(countLabel);
+    panel.setWidgetTopHeight(countLabel, 50, Unit.PX, 50, Unit.PX);
+    panel.setWidgetLeftRight(countLabel, 40, Unit.PCT, 40, Unit.PCT);
+
+    panel.add(chart);
+    panel.setWidgetTopHeight(chart, 100, Unit.PX, 50, Unit.PX);
+    panel.setWidgetLeftRight(chart, 20, Unit.PCT, 20, Unit.PCT);
+    return panel;
+  }
+
+
 
   public Widget createSpeedChartExample() {
 
@@ -306,6 +423,77 @@ public class SpeedChartSample implements EntryPoint {
     return panel;
   }
 
+  private static class SampleDatasetModel implements DatasetModel {
+
+    double[] units = new double[]{TimeUnit.SEC.ms(), 
+				  TimeUnit.MIN.ms(), 
+				  TimeUnit.HOUR.ms()};
+
+    public SampleDatasetModel() {
+    }
+
+    public double[] getUnits() {
+      return units;
+    }
+
+    public void requestData(Request request, final Callback callback) {
+      Interval region = request.getRegion();
+      int unitIdx = request.getUnitIdx();
+
+      double tick = units[unitIdx];
+      double d = region.getStart();
+	  
+      int numSamples = (int) (region.length() / tick);
+      final double[] domain = new double[numSamples];
+      final double[] range = new double[numSamples];
+
+      for (int i = 0; i < numSamples; i++) {
+	domain[i] = d;
+	range[i] = Random.nextDouble() * 2000;
+	d += tick;
+      }
+
+      Timer t = new Timer() {
+	  public void run() {
+	    callback.provideData(domain, range);
+	  };
+	};
+      t.schedule(1500);
+    }
+  }
+
+  public Widget createZoomDatasetExample() {
+
+    GraphUiProps dsUiProps1 = new GraphUiProps(Color.BLUE,
+        Color.BLACK, 0);
+
+    final ChartUiProps chartUiProps = new ChartUiProps();
+    chartUiProps.setDrawBorders(true);
+    chartUiProps.setVisibleRangeInterval(new Interval(0.0, 2200.0));
+
+    final SpeedChart chart = new SpeedChart(chartUiProps);
+    final DatasetModel model = new SampleDatasetModel();
+    chart.addDataset(getZoomDataset(model), dsUiProps1);
+    chart.zoomAll();
+
+    final LayoutPanel panel = new LayoutPanel();
+    panel.add(chart);
+    panel.setWidgetTopHeight(chart, 50, Unit.PX, 50, Unit.PCT);
+    panel.setWidgetLeftRight(chart, 20, Unit.PCT, 20, Unit.PCT);
+
+    InlineLabel doc = new InlineLabel(
+        "The graph above loads does on-demand loading of its data, "
+        + "with a simulated 1.5 second delay. "
+        + "Resolutions are hour, minute and second.");
+
+    panel.add(doc);
+    panel.setWidgetTopHeight(doc, 70, Unit.PCT, 100, Unit.PCT);
+    panel.setWidgetLeftRight(doc, 20, Unit.PCT, 20, Unit.PCT);
+
+    return panel;
+  }
+
+
   /**
    * This is the entry point method.
    */
@@ -317,6 +505,8 @@ public class SpeedChartSample implements EntryPoint {
     tabPanel.add(createAreaChartExample(), "AreaChart");
     tabPanel.add(createStreamingExample(), "Steaming");
     tabPanel.add(createOverlayExample(), "Overlay");
+    tabPanel.add(createLargeExample(), "Benchmark");
+    tabPanel.add(createZoomDatasetExample(), "Zoom");
 
     RootLayoutPanel.get().add(tabPanel);
 

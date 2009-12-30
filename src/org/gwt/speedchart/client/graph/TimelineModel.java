@@ -102,8 +102,6 @@ public class TimelineModel implements Boundable, DatasetListener  {
   }
 
   public void fireBoundsChangeEvent(double start, double end) {
-    Log.info("fire bounds change: " + start + "; " + end);
-    
     for (int i = 0, n = windowObservers.size(); i < n; i++) {
       WindowBoundsObserver observer = windowObservers.get(i);
       observer.onWindowBoundsChange(start, end);
@@ -175,6 +173,8 @@ public class TimelineModel implements Boundable, DatasetListener  {
     mostRecentDomainValue = Math.max(mostRecentDomainValue, domainEnd);
     if (mostRecentDomainValue <= getRightBound() || showStreaming) {
       isDirty = true;
+    } else {
+      refresh();
     }
     if (!updateController.timerActive) {
       updateController.restartUpdateTimer();
